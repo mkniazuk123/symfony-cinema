@@ -1,0 +1,27 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+
+    ### Interfaces
+    App\Catalog\Interfaces\Controllers\:
+        resource: '../../src/Catalog/Interfaces/Controllers/*'
+
+
+    ### Application
+    App\Catalog\Application\Services\:
+        resource: '../../src/Catalog/Application/Services/*'
+        public: true
+
+    App\Catalog\Application\Ports\MovieReadModel: '@App\Catalog\Infrastructure\DbalMovieReadModel'
+
+
+    ### Domain:
+    App\Catalog\Domain\Ports\MovieRepository: '@App\Catalog\Infrastructure\DbalMovieRepository'
+
+
+    ### Infrastructure
+    App\Catalog\Infrastructure\DbalMovieReadModel: ~
+    App\Catalog\Infrastructure\DbalMovieRepository: ~

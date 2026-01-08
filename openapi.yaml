@@ -1,0 +1,689 @@
+openapi: 3.0.0
+info:
+  title: symfony-cinema
+  version: dev-master
+servers:
+  - url: http://localhost:60149
+    description: Development
+components:
+  securitySchemes:
+    AdminAuth:
+      type: http
+      scheme: basic
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            type:
+              type: string
+            message:
+              type: string
+            details: { }
+    ApiProblem:
+      type: object
+      description: RFC 7807 problem details
+      properties:
+        title:
+          type: string
+          example: User not found
+        type:
+          type: string
+          example: userNotFound
+      additionalProperties: true
+    MovieId:
+      type: string
+      example: movie_1
+    MovieStatus:
+      type: string
+      enum:
+        - upcoming
+        - available
+        - archived
+    MovieDetails:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Inception
+        description:
+          type: string
+          example: A mind-bending thriller by Christopher Nolan.
+    MovieLength:
+      type: object
+      properties:
+        minutes:
+          type: integer
+          example: 148
+    Movie:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/MovieId'
+        status:
+          $ref: '#/components/schemas/MovieStatus'
+        details:
+          $ref: '#/components/schemas/MovieDetails'
+        length:
+          $ref: '#/components/schemas/MovieLength'
+    MovieList:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 2
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Movie'
+    HallId:
+      type: string
+      example: hall_1
+    HallStatus:
+      type: string
+      enum:
+        - active
+        - archived
+    HallName:
+      type: string
+      example: Hall 01
+    HallCapacity:
+      type: integer
+      example: 100
+    Hall:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/HallId'
+        name:
+          $ref: '#/components/schemas/HallName'
+        capacity:
+          $ref: '#/components/schemas/HallCapacity'
+        status:
+          $ref: '#/components/schemas/HallStatus'
+    SeatNumber:
+      type: integer
+      example: 1
+      minimum: 1
+    SeatGroup:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: ['seatGroup']
+        seats:
+          type: array
+          items:
+            $ref: '#/components/schemas/SeatNumber'
+    Gap:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: ['gap']
+    RowSegment:
+      oneOf:
+        - $ref: '#/components/schemas/SeatGroup'
+        - $ref: '#/components/schemas/Gap'
+    RowLayout:
+      type: object
+      properties:
+        number:
+          type: integer
+          example: 1
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/RowSegment'
+    SeatingLayout:
+      type: object
+      properties:
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/RowLayout'
+    HallList:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 2
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Hall'
+
+  examples:
+    validationFailedProblem:
+      value:
+        type: validationFailed
+        title: Validation failed
+        status: 422
+        errors:
+          - property: '[name]'
+            error: This value must not be empty.
+    movieNotFoundProblem:
+      value:
+        type: movieNotFound
+        title: Movie not found
+        status: 404
+        movieId: movie_1
+    invalidMovieStatusProblem:
+      value:
+        type: invalidMovieStatus
+        title: Invalid movie status
+        status: 400
+        movieId: movie_1
+        movieStatus: archived
+    hallNotFoundProblem:
+      value:
+        type: hallNotFound
+        title: Hall not found
+        status: 404
+        hallId: hall_1
+    invalidHallStatusProblem:
+      value:
+        type: invalidHallStatus
+        title: Invalid hall status
+        status: 400
+        hallId: hall_1
+        hallStatus: archived
+    invalidLayoutProblem:
+      value:
+        type: invalidLayout
+        title: Invalid layout
+        status: 422
+        detail: Duplicate seat number 1 in row 1
+
+  parameters:
+    movieId:
+      name: movieId
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/MovieId'
+    hallId:
+      name: hallId
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/HallId'
+
+tags:
+  - name: movies
+    description: Movie management
+  - name: halls
+    description: Hall management
+
+paths:
+  /movies:
+    get:
+      tags:
+        - movies
+      summary: List movies
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieList'
+
+    post:
+      tags:
+        - movies
+      summary: Create a new movie
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                details:
+                  $ref: '#/components/schemas/MovieDetails'
+                length:
+                  $ref: '#/components/schemas/MovieLength'
+              required:
+                - details
+                - length
+
+      responses:
+        '201':
+          description: Movie created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Validation failed':
+                  $ref: '#/components/examples/validationFailedProblem'
+
+  /movies/{movieId}:
+    get:
+      tags:
+        - movies
+      summary: Get a movie
+      parameters:
+        - $ref: '#/components/parameters/movieId'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '404':
+          description: Movie not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Movie not found':
+                  $ref: '#/components/examples/movieNotFoundProblem'
+
+  /movies/{movieId}/details:
+    put:
+      tags:
+        - movies
+      summary: Update movie details
+      parameters:
+        - $ref: '#/components/parameters/movieId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MovieDetails'
+      responses:
+        '200':
+          description: Movie updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '400':
+          description: Invalid movie status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Invalid movie status':
+                  $ref: '#/components/examples/invalidMovieStatusProblem'
+        '404':
+          description: Movie not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Movie not found':
+                  $ref: '#/components/examples/movieNotFoundProblem'
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Validation failed':
+                  $ref: '#/components/examples/validationFailedProblem'
+
+  /movies/{movieId}/length:
+    put:
+      tags:
+        - movies
+      summary: Update movie length
+      parameters:
+        - $ref: '#/components/parameters/movieId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MovieLength'
+      responses:
+        '200':
+          description: Movie updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '400':
+          description: Invalid movie status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Invalid movie status':
+                  $ref: '#/components/examples/invalidMovieStatusProblem'
+        '404':
+          description: Movie not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Movie not found':
+                  $ref: '#/components/examples/movieNotFoundProblem'
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Validation failed':
+                  $ref: '#/components/examples/validationFailedProblem'
+
+  /movies/{movieId}/release:
+    post:
+      tags:
+        - movies
+      summary: Release a movie
+      parameters:
+        - $ref: '#/components/parameters/movieId'
+      responses:
+        '200':
+          description: Movie released
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '400':
+          description: Invalid movie status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Invalid movie status':
+                  $ref: '#/components/examples/invalidMovieStatusProblem'
+        '404':
+          description: Movie not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Movie not found':
+                  $ref: '#/components/examples/movieNotFoundProblem'
+
+  /movies/{movieId}/archive:
+    post:
+      tags:
+        - movies
+      summary: Archive a movie
+      parameters:
+        - $ref: '#/components/parameters/movieId'
+      responses:
+        '200':
+          description: Movie archived
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '400':
+          description: Invalid movie status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Invalid movie status':
+                  $ref: '#/components/examples/invalidMovieStatusProblem'
+        '404':
+          description: Movie not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Movie not found':
+                  $ref: '#/components/examples/movieNotFoundProblem'
+  /halls:
+    get:
+      tags:
+        - halls
+      summary: List halls
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HallList'
+    post:
+      tags:
+        - halls
+      summary: Create a new hall
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  $ref: '#/components/schemas/HallName'
+                layout:
+                  $ref: '#/components/schemas/SeatingLayout'
+              required:
+                - name
+                - layout
+      responses:
+        '201':
+          description: Hall created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hall'
+        '422':
+          description: Invalid layout or Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Invalid layout':
+                  $ref: '#/components/examples/invalidLayoutProblem'
+                'Validation failed':
+                  $ref: '#/components/examples/validationFailedProblem'
+
+  /halls/{hallId}:
+    get:
+      tags:
+        - halls
+      summary: Get a hall
+      parameters:
+        - $ref: '#/components/parameters/hallId'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hall'
+        '404':
+          description: Hall not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Hall not found':
+                  $ref: '#/components/examples/hallNotFoundProblem'
+
+  /halls/{hallId}/layout:
+    get:
+      tags:
+        - halls
+      summary: Get hall layout
+      parameters:
+        - $ref: '#/components/parameters/hallId'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeatingLayout'
+        '404':
+          description: Hall not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Hall not found':
+                  $ref: '#/components/examples/hallNotFoundProblem'
+    put:
+      tags:
+        - halls
+      summary: Update hall layout
+      parameters:
+        - $ref: '#/components/parameters/hallId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                layout:
+                  $ref: '#/components/schemas/SeatingLayout'
+              required:
+                - layout
+      responses:
+        '200':
+          description: Hall updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hall'
+        '400':
+          description: Invalid hall status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Invalid hall status':
+                  $ref: '#/components/examples/invalidHallStatusProblem'
+        '404':
+          description: Hall not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Hall not found':
+                  $ref: '#/components/examples/hallNotFoundProblem'
+        '422':
+          description: Invalid layout or Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Invalid layout':
+                  $ref: '#/components/examples/invalidLayoutProblem'
+                'Validation failed':
+                  $ref: '#/components/examples/validationFailedProblem'
+
+  /halls/{hallId}/name:
+    put:
+      tags:
+        - halls
+      summary: Rename hall
+      parameters:
+        - $ref: '#/components/parameters/hallId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  $ref: '#/components/schemas/HallName'
+              required:
+                - name
+      responses:
+        '200':
+          description: Hall renamed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hall'
+        '400':
+          description: Invalid hall status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Invalid hall status':
+                  $ref: '#/components/examples/invalidHallStatusProblem'
+        '404':
+          description: Hall not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Hall not found':
+                  $ref: '#/components/examples/hallNotFoundProblem'
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Validation failed':
+                  $ref: '#/components/examples/validationFailedProblem'
+
+  /halls/{hallId}/archive:
+    post:
+      tags:
+        - halls
+      summary: Archive hall
+      parameters:
+        - $ref: '#/components/parameters/hallId'
+      responses:
+        '200':
+          description: Hall archived
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hall'
+        '400':
+          description: Invalid hall status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Invalid hall status':
+                  $ref: '#/components/examples/invalidHallStatusProblem'
+        '404':
+          description: Hall not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Hall not found':
+                  $ref: '#/components/examples/hallNotFoundProblem'

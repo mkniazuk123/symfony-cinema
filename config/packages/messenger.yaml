@@ -1,0 +1,43 @@
+framework:
+    messenger:
+        serializer:
+            default_serializer: messenger.transport.symfony_serializer
+            symfony_serializer:
+                format: json
+
+        default_bus: message.bus
+        buses:
+            message.bus:
+                default_middleware:
+                    enabled: true
+                    allow_no_handlers: true
+            job.bus: ~
+            domain_event.bus: ~
+
+        transports:
+            sync: 'sync://'
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                retry_strategy:
+                    max_retries: 1000000
+                    delay: 60000 # 1min
+                    multiplier: 2 # 1min, 2min, 4min, 8min, ...
+                    max_delay: 86400000 # 24h
+                options:
+                    delay:
+                        queue_name_pattern: "%app%.delay_%%delay%%"
+                        exchange_name: "%app%.delays"
+                    exchange:
+                        name: '%app%'
+                        type: topic
+                    queues:
+                        '%app%':
+                            binding_keys: [ '#' ]
+        routing:
+
+when@test:
+    framework:
+        messenger:
+            transports:
+                sync: 'test://?support_delay_stamp=true&catch_exceptions=false'
+                async: 'test://?support_delay_stamp=true&catch_exceptions=false'

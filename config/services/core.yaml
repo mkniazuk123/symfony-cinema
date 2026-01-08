@@ -1,0 +1,30 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+
+    ### Interfaces
+    App\Core\Interfaces\Controllers\:
+        resource: '../../src/Core/Interfaces/Controllers/*'
+
+    App\Core\Interfaces\Normalizers\:
+        resource: '../../src/Core/Interfaces/Normalizers/*'
+
+    App\Core\Interfaces\Resolvers\:
+        resource: '../../src/Core/Interfaces/Resolvers/*'
+        tags:
+            - { name: controller.argument_value_resolver, priority: 101 }
+
+
+    ### Application
+
+
+    ### Domain:
+
+
+    ### Infrastructure
+    App\Core\Infrastructure\ApiProblemExceptionListener: ~
+
+    App\Core\Infrastructure\ValidationExceptionListener: ~

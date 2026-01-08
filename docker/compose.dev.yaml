@@ -1,0 +1,120 @@
+name: symfony-cinema-dev
+
+services:
+  composer:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    working_dir: /app
+    volumes:
+      - ..:/app
+    env_file: '.env.dev'
+    command: "composer install"
+    networks:
+      - default
+
+  init:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    working_dir: /app
+    volumes:
+      - ..:/app
+    env_file: '.env.dev'
+    command:
+      - "bash"
+      - "-c"
+      - "
+      bin/console cache:warmup
+      && bin/console doctrine:migrations:migrate
+      && bin/console messenger:setup-transports"
+    depends_on:
+      composer:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - default
+
+  server:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    working_dir: /app
+    volumes:
+      - ..:/app
+    env_file: '.env.dev'
+    ports:
+      - "60149:8000"
+    command: "symfony server:start --allow-all-ip"
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/_healthz"]
+      interval: 60s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+      start_interval: 5s
+    networks:
+      - default
+
+  cli:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    working_dir: /app
+    volumes:
+      - ..:/app
+    env_file: '.env.dev'
+    command: "sleep 3600"
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    networks:
+      - default
+
+  postgres:
+    image: postgres:18
+    ports:
+      - "61338:5432"
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/18/docker
+      - ./docker/postgres:/docker-entrypoint-initdb.d
+    networks:
+      - default
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    ports:
+      - "51980:5672"
+      - "51981:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: "admin"
+      RABBITMQ_DEFAULT_PASS: "admin"
+      RABBITMQ_DEFAULT_VHOST: "app"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics ping
+      interval: 60s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+      start_interval: 5s
+    networks:
+      - default
+
+volumes:
+  postgres-data:
+  rabbitmq-data:
+
+networks:
+  default: {}

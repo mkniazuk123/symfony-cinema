@@ -1,0 +1,13 @@
+parameters:
+    app: 'symfony-cinema'
+
+
+imports:
+    - { resource: services/core.yaml }
+    - { resource: services/catalog.yaml }
+    - { resource: services/facilities.yaml }
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true

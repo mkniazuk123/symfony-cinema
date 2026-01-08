@@ -1,0 +1,17 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    App\Tests\Core\Context\:
+        resource: '../tests/Core/Context/*'
+        public: true
+
+    App\Tests\Catalog\Context\:
+        resource: '../tests/Catalog/Context/*'
+        public: true
+
+    App\Tests\Facilities\Context\:
+        resource: '../tests/Facilities/Context/*'
+        public: true

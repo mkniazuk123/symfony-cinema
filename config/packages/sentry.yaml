@@ -1,0 +1,11 @@
+when@production: &sentry_production
+    sentry:
+        dsn: '%env(SENTRY_DSN)%'
+        options:
+            ignore_exceptions:
+                - 'Symfony\Component\ErrorHandler\Error\FatalError'
+                - 'Symfony\Component\Debug\Exception\FatalErrorException'
+                - 'Symfony\Component\HttpKernel\Exception\HttpException'
+                - 'App\SharedKernel\Application\ApiProblemException'
+
+when@staging: *sentry_production

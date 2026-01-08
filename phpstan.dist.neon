@@ -1,0 +1,14 @@
+parameters:
+    level: 8
+    paths:
+        - bin/
+        - config/
+        - public/
+        - src/
+        - tests/
+    ignoreErrors:
+    	- identifier: missingType.iterableValue
+    	- identifier: trait.unused
+    symfony:
+        containerXmlPath: var/cache/test/App_KernelTestDebugContainer.xml
+    treatPhpDocTypesAsCertain: false

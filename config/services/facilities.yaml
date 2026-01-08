@@ -1,0 +1,27 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+
+    ### Interfaces
+    App\Facilities\Interfaces\Controllers\:
+        resource: '../../src/Facilities/Interfaces/Controllers/*'
+
+
+    ### Application
+    App\Facilities\Application\Services\:
+        resource: '../../src/Facilities/Application/Services/*'
+        public: true
+
+    App\Facilities\Application\Ports\HallReadModel: '@App\Facilities\Infrastructure\DbalHallReadModel'
+
+
+    ### Domain:
+    App\Facilities\Domain\Ports\HallRepository: '@App\Facilities\Infrastructure\DbalHallRepository'
+
+
+    ### Infrastructure
+    App\Facilities\Infrastructure\DbalHallReadModel: ~
+    App\Facilities\Infrastructure\DbalHallRepository: ~

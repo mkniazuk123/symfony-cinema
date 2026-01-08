@@ -1,0 +1,18 @@
+default:
+    suites:
+        catalog:
+            paths:
+                - "%paths.base%/features/catalog"
+            contexts:
+                - App\Tests\Core\Context\DatabaseContext
+                - App\Tests\Catalog\Context\MovieContext
+        facilities:
+            paths:
+                - "%paths.base%/features/facilities"
+            contexts:
+                - App\Tests\Core\Context\DatabaseContext
+                - App\Tests\Facilities\Context\HallContext
+
+    extensions:
+        FriendsOfBehat\SymfonyExtension:
+            bootstrap: tests/bootstrap.php
