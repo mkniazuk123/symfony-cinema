@@ -36,7 +36,7 @@ Feature: Halls management
         Then The hall should be created successfully
         And The hall should be named "Number 1"
         And The hall should have capacity of 10 seats
-        And The hall should be active
+        And The hall should be open
 
     Scenario: Rename hall
         Given There is a hall "hall1" named "Old Name"
@@ -45,7 +45,7 @@ Feature: Halls management
         And The hall should be named "New Name"
 
     Scenario: Update hall layout
-        Given There is an active hall "hall1" with capacity of 3 seats and the following layout:
+        Given There is an open hall "hall1" with capacity of 3 seats and the following layout:
         """json
         {
             "rows": [
@@ -87,8 +87,20 @@ Feature: Halls management
         Then The hall "hall1" should exists
         And The hall should have capacity of 4 seats
 
+    Scenario: Close hall
+        Given There is an open hall "hall1"
+        When I close the hall "hall1"
+        Then The hall "hall1" should exists
+        And The hall should be closed
+
+    Scenario: Open hall
+        Given There is an closed hall "hall1"
+        When I open the hall "hall1"
+        Then The hall "hall1" should exists
+        And The hall should be open
+
     Scenario: Archive hall
-        Given There is an active hall "hall1"
+        Given There is an open hall "hall1"
         When I archive the hall "hall1"
         Then The hall "hall1" should exists
         And The hall should be archived

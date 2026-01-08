@@ -14,7 +14,7 @@ class Hall
     public static function create(HallName $name, SeatingLayout $layout): self
     {
         $id = HallId::generate();
-        $status = HallStatus::ACTIVE;
+        $status = HallStatus::OPEN;
         $capacity = new HallCapacity($layout->countSeats());
 
         return new self($id, $status, $name, $capacity, $layout);
@@ -69,7 +69,7 @@ class Hall
      */
     public function rename(HallName $name): void
     {
-        $this->assertStatus(HallStatus::ACTIVE);
+        $this->assertStatus(HallStatus::OPEN, HallStatus::CLOSED);
         $this->name = $name;
     }
 
@@ -78,7 +78,7 @@ class Hall
      */
     public function updateLayout(SeatingLayout $layout): void
     {
-        $this->assertStatus(HallStatus::ACTIVE);
+        $this->assertStatus(HallStatus::OPEN, HallStatus::CLOSED);
 
         $this->layout = $layout;
         $this->capacity = new HallCapacity($layout->countSeats());
@@ -87,9 +87,29 @@ class Hall
     /**
      * @throws InvalidHallStatusException
      */
+    public function close(): void
+    {
+        $this->assertStatus(HallStatus::OPEN);
+
+        $this->status = HallStatus::CLOSED;
+    }
+
+    /**
+     * @throws InvalidHallStatusException
+     */
+    public function open(): void
+    {
+        $this->assertStatus(HallStatus::CLOSED);
+
+        $this->status = HallStatus::OPEN;
+    }
+
+    /**
+     * @throws InvalidHallStatusException
+     */
     public function archive(): void
     {
-        $this->assertStatus(HallStatus::ACTIVE);
+        $this->assertStatus(HallStatus::OPEN, HallStatus::CLOSED);
 
         $this->status = HallStatus::ARCHIVED;
     }

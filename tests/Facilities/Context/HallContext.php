@@ -129,6 +129,18 @@ final class HallContext implements Context
         $this->execute(fn () => $this->hallService->updateHallLayout($id, $layout));
     }
 
+    #[When('I open the hall :id')]
+    public function iOpenTheHall(HallId $id): void
+    {
+        $this->execute(fn () => $this->hallService->openHall($id));
+    }
+
+    #[When('I close the hall :id')]
+    public function iCloseTheHall(HallId $id): void
+    {
+        $this->execute(fn () => $this->hallService->closeHall($id));
+    }
+
     #[When('I archive the hall :id')]
     public function iArchiveTheHall(HallId $id): void
     {

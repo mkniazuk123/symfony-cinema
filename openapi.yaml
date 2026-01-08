@@ -84,7 +84,8 @@ components:
     HallStatus:
       type: string
       enum:
-        - active
+        - open
+        - closed
         - archived
     HallName:
       type: string
@@ -654,6 +655,72 @@ paths:
               examples:
                 'Validation failed':
                   $ref: '#/components/examples/validationFailedProblem'
+
+  /halls/{hallId}/open:
+    post:
+      tags:
+        - halls
+      summary: Open hall
+      parameters:
+        - $ref: '#/components/parameters/hallId'
+      responses:
+        '200':
+          description: Hall opened
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hall'
+        '400':
+          description: Invalid hall status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Invalid hall status':
+                  $ref: '#/components/examples/invalidHallStatusProblem'
+        '404':
+          description: Hall not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Hall not found':
+                  $ref: '#/components/examples/hallNotFoundProblem'
+
+  /halls/{hallId}/close:
+    post:
+      tags:
+        - halls
+      summary: Close hall
+      parameters:
+        - $ref: '#/components/parameters/hallId'
+      responses:
+        '200':
+          description: Hall closed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hall'
+        '400':
+          description: Invalid hall status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Invalid hall status':
+                  $ref: '#/components/examples/invalidHallStatusProblem'
+        '404':
+          description: Hall not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProblem'
+              examples:
+                'Hall not found':
+                  $ref: '#/components/examples/hallNotFoundProblem'
 
   /halls/{hallId}/archive:
     post:

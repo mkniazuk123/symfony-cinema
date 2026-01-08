@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Facilities\Domain;
+namespace App\Tests\Facilities\Domain\Values;
 
 use App\Core\Domain\InvalidValueException;
 use App\Facilities\Domain\Values\SeatingLayout;

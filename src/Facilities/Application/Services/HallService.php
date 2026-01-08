@@ -98,6 +98,32 @@ class HallService
      * @throws HallNotFoundException
      * @throws InvalidHallStatusException
      */
+    public function closeHall(HallId $id): void
+    {
+        $this->connection->transactional(function () use ($id) {
+            $hall = $this->hallRepository->find($id) ?? throw new HallNotFoundException($id);
+            $hall->close();
+            $this->hallRepository->save($hall);
+        });
+    }
+
+    /**
+     * @throws HallNotFoundException
+     * @throws InvalidHallStatusException
+     */
+    public function openHall(HallId $id): void
+    {
+        $this->connection->transactional(function () use ($id) {
+            $hall = $this->hallRepository->find($id) ?? throw new HallNotFoundException($id);
+            $hall->open();
+            $this->hallRepository->save($hall);
+        });
+    }
+
+    /**
+     * @throws HallNotFoundException
+     * @throws InvalidHallStatusException
+     */
     public function archiveHall(HallId $id): void
     {
         $this->connection->transactional(function () use ($id) {

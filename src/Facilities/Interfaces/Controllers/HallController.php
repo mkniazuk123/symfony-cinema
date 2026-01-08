@@ -121,6 +121,38 @@ class HallController extends ApiController
         return $this->jsonResponse($hall);
     }
 
+    #[Route(path: '/{id}/close', methods: ['POST'])]
+    public function closeHall(HallId $id): Response
+    {
+        try {
+            $this->service->closeHall($id);
+        } catch (HallNotFoundException $exception) {
+            $this->apiProblem(HallNotFoundApiProblem::fromException($exception));
+        } catch (InvalidHallStatusException $exception) {
+            $this->apiProblem(InvalidHallStatusApiProblem::fromException($exception));
+        }
+
+        $hall = $this->service->getHall($id);
+
+        return $this->jsonResponse($hall);
+    }
+
+    #[Route(path: '/{id}/open', methods: ['POST'])]
+    public function openHall(HallId $id): Response
+    {
+        try {
+            $this->service->openHall($id);
+        } catch (HallNotFoundException $exception) {
+            $this->apiProblem(HallNotFoundApiProblem::fromException($exception));
+        } catch (InvalidHallStatusException $exception) {
+            $this->apiProblem(InvalidHallStatusApiProblem::fromException($exception));
+        }
+
+        $hall = $this->service->getHall($id);
+
+        return $this->jsonResponse($hall);
+    }
+
     #[Route(path: '/{id}/archive', methods: ['POST'])]
     public function archiveHall(HallId $id): Response
     {

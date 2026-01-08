@@ -20,7 +20,7 @@ class HallBuilder
     public function __construct(?HallId $id = null)
     {
         $this->id = $id ?? HallId::generate();
-        $this->status = HallStatus::ACTIVE;
+        $this->status = HallStatus::OPEN;
         $this->name = new HallName('Default Hall Name');
         $this->capacity = new HallCapacity(100);
         $this->layout = new SeatingLayoutBuilder()->addSampleRow()->build();
