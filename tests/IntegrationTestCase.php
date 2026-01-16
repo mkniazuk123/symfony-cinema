@@ -36,15 +36,26 @@ abstract class IntegrationTestCase extends KernelTestCase
         $this->eventDispatcher = $container->get('event_dispatcher');
 
         $this->resetDatabase();
+        $this->database->beginTransaction();
     }
 
     private function resetDatabase(): void
     {
-        // TODO: Get rid of hardcoded table names
         $this->database->executeStatement(<<<SQL
 TRUNCATE TABLE
-    catalog_movie
+    catalog_movie,
+    facilities_hall,
+    facilities_reservation
 RESTART IDENTITY CASCADE
 SQL);
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        if ($this->database->isTransactionActive()) {
+            $this->database->rollBack();
+        }
     }
 }

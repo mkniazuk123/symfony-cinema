@@ -2,43 +2,40 @@
 
 namespace App\Core\Interfaces\Normalizers;
 
-use App\Core\Domain\StringValue;
+use App\Core\Domain\DateTime;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-class StringValueNormalizer implements NormalizerInterface, DenormalizerInterface
+class DateTimeNormalizer implements NormalizerInterface, DenormalizerInterface
 {
     public function getSupportedTypes(?string $format): array
     {
-        return [StringValue::class => true];
+        return [DateTime::class => true];
     }
 
     public function supportsNormalization($data, ?string $format = null, array $context = []): bool
     {
-        return $data instanceof StringValue;
+        return $data instanceof DateTime;
     }
 
     /**
-     * @param StringValue $data
+     * @param DateTime $data
      */
     public function normalize($data, ?string $format = null, array $context = []): string
     {
-        return $data->value();
+        return (string) $data;
     }
 
     public function supportsDenormalization($data, string $type, ?string $format = null, array $context = []): bool
     {
-        return is_subclass_of($type, StringValue::class);
+        return DateTime::class === $type;
     }
 
     /**
-     * @template T of StringValue
-     *
-     * @param string          $data
-     * @param class-string<T> $type
+     * @param string $data
      */
-    public function denormalize($data, string $type, ?string $format = null, array $context = []): StringValue
+    public function denormalize($data, string $type, ?string $format = null, array $context = []): DateTime
     {
-        return new $type($data);
+        return DateTime::parse($data);
     }
 }

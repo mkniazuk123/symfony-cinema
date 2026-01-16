@@ -32,6 +32,16 @@ readonly class DateTime implements \Stringable
         return $this->value() < $other->value();
     }
 
+    public function isAfter(self $other): bool
+    {
+        return $this->value() > $other->value();
+    }
+
+    public function isFuture(Clock $clock): bool
+    {
+        return $this->isAfter(self::current($clock));
+    }
+
     public function add(Duration $duration): self
     {
         return new self(

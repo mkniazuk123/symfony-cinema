@@ -59,7 +59,7 @@ SQL,
 
     private function fetchRow(HallId $id): ?array
     {
-        $statement = $this->connection->executeQuery(<<<SQL
+        $result = $this->connection->executeQuery(<<<SQL
 SELECT id, status, name, capacity, layout
 FROM facilities_hall
 WHERE id = ?
@@ -68,7 +68,7 @@ SQL,
             [$id],
         );
 
-        return $statement->fetchAssociative() ?: null;
+        return $result->fetchAssociative() ?: null;
     }
 
     private function reconstituteHallFromRow(array $row): Hall

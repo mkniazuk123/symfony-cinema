@@ -46,6 +46,16 @@ class HallBuilder
         return $this;
     }
 
+    public function open(): self
+    {
+        return $this->withStatus(HallStatus::OPEN);
+    }
+
+    public function closed(): self
+    {
+        return $this->withStatus(HallStatus::CLOSED);
+    }
+
     public function withName(HallName|string $name): self
     {
         if (is_string($name)) {

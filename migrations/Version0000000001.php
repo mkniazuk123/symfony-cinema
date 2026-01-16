@@ -35,11 +35,22 @@ CREATE TABLE facilities_hall (
     layout JSONB NOT NULL
 );
 SQL);
+
+        $this->addSql(<<<SQL
+CREATE TABLE facilities_reservation (
+    id CHARACTER VARYING NOT NULL PRIMARY KEY,
+    hall_id CHARACTER VARYING NOT NULL,
+    time_start TIMESTAMP(0) WITH TIME ZONE NOT NULL,
+    time_end TIMESTAMP(0) WITH TIME ZONE NOT NULL,
+    status CHARACTER VARYING NOT NULL
+);
+SQL);
     }
 
     public function down(Schema $schema): void
     {
         $this->addSql('DROP TABLE catalog_movie');
         $this->addSql('DROP TABLE facilities_hall');
+        $this->addSql('DROP TABLE facilities_reservation');
     }
 }

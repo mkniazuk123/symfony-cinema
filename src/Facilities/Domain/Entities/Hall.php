@@ -49,6 +49,16 @@ class Hall
         return $this->status;
     }
 
+    public function isOpen(): bool
+    {
+        return HallStatus::OPEN === $this->status;
+    }
+
+    public function isClosed(): bool
+    {
+        return HallStatus::CLOSED === $this->status;
+    }
+
     public function getName(): HallName
     {
         return $this->name;

@@ -19,11 +19,11 @@ class IntegerValueNormalizer implements NormalizerInterface, DenormalizerInterfa
     }
 
     /**
-     * @param IntegerValue $object
+     * @param IntegerValue $data
      */
-    public function normalize($object, ?string $format = null, array $context = []): int
+    public function normalize($data, ?string $format = null, array $context = []): int
     {
-        return $object->value();
+        return $data->value();
     }
 
     public function supportsDenormalization($data, string $type, ?string $format = null, array $context = []): bool
