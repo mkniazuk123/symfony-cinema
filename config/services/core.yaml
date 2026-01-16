@@ -19,6 +19,7 @@ services:
 
 
     ### Application
+    App\Core\Application\CommandBus: '@App\Core\Infrastructure\MessengerCommandBus'
 
 
     ### Domain:
@@ -29,3 +30,4 @@ services:
     App\Core\Infrastructure\ApiProblemExceptionListener: ~
     App\Core\Infrastructure\ValidationExceptionListener: ~
     App\Core\Infrastructure\NativeClock: ~
+    App\Core\Infrastructure\MessengerCommandBus: ~

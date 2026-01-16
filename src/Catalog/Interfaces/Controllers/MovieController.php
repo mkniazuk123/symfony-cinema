@@ -2,6 +2,11 @@
 
 namespace App\Catalog\Interfaces\Controllers;
 
+use App\Catalog\Application\Commands\ArchiveMovieCommand;
+use App\Catalog\Application\Commands\CreateMovieCommand;
+use App\Catalog\Application\Commands\ReleaseMovieCommand;
+use App\Catalog\Application\Commands\UpdateMovieDetailsCommand;
+use App\Catalog\Application\Commands\UpdateMovieLengthCommand;
 use App\Catalog\Application\Exceptions\MovieNotFoundException;
 use App\Catalog\Application\Services\MovieService;
 use App\Catalog\Domain\Exceptions\InvalidMovieStatusException;
@@ -11,6 +16,7 @@ use App\Catalog\Interfaces\ApiProblems\MovieNotFoundApiProblem;
 use App\Catalog\Interfaces\Requests\CreateMovieRequest;
 use App\Catalog\Interfaces\Requests\MovieDetailsRequest;
 use App\Catalog\Interfaces\Requests\MovieLengthRequest;
+use App\Core\Application\CommandBus;
 use App\Core\Interfaces\Controllers\ApiController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -23,17 +29,19 @@ class MovieController extends ApiController
 {
     public function __construct(
         private MovieService $service,
+        private CommandBus $commandBus,
     ) {
     }
 
     #[Route(methods: ['POST'])]
     public function createMovie(#[MapRequestPayload] CreateMovieRequest $request): Response
     {
+        $id = MovieId::generate();
         $details = $request->details->build();
         $length = $request->length->build();
 
-        $movieId = $this->service->createMovie($details, $length);
-        $movie = $this->service->getMovie($movieId);
+        $this->commandBus->dispatch(new CreateMovieCommand($id, $details, $length));
+        $movie = $this->service->getMovie($id);
 
         return $this->jsonResponse($movie, status: 201);
     }
@@ -64,9 +72,10 @@ class MovieController extends ApiController
         #[MapRequestPayload] MovieDetailsRequest $request,
     ): Response {
         $details = $request->build();
+        $command = new UpdateMovieDetailsCommand($id, $details);
 
         try {
-            $this->service->updateMovieDetails($id, $details);
+            $this->commandBus->dispatch($command);
         } catch (MovieNotFoundException $exception) {
             $this->apiProblem(MovieNotFoundApiProblem::fromException($exception));
         } catch (InvalidMovieStatusException $exception) {
@@ -84,9 +93,10 @@ class MovieController extends ApiController
         #[MapRequestPayload] MovieLengthRequest $request,
     ): Response {
         $length = $request->build();
+        $command = new UpdateMovieLengthCommand($id, $length);
 
         try {
-            $this->service->updateMovieLength($id, $length);
+            $this->commandBus->dispatch($command);
         } catch (MovieNotFoundException $exception) {
             $this->apiProblem(MovieNotFoundApiProblem::fromException($exception));
         } catch (InvalidMovieStatusException $exception) {
@@ -101,8 +111,10 @@ class MovieController extends ApiController
     #[Route(path: '/{id}/release', methods: ['POST'])]
     public function releaseMovie(MovieId $id): Response
     {
+        $command = new ReleaseMovieCommand($id);
+
         try {
-            $this->service->releaseMovie($id);
+            $this->commandBus->dispatch($command);
         } catch (MovieNotFoundException $exception) {
             $this->apiProblem(MovieNotFoundApiProblem::fromException($exception));
         } catch (InvalidMovieStatusException $exception) {
@@ -117,8 +129,9 @@ class MovieController extends ApiController
     #[Route(path: '/{id}/archive', methods: ['POST'])]
     public function archiveMovie(MovieId $id): Response
     {
+        $command = new ArchiveMovieCommand($id);
         try {
-            $this->service->archiveMovie($id);
+            $this->commandBus->dispatch($command);
         } catch (MovieNotFoundException $exception) {
             $this->apiProblem(MovieNotFoundApiProblem::fromException($exception));
         } catch (InvalidMovieStatusException $exception) {

@@ -15,6 +15,9 @@ services:
         resource: '../../src/Catalog/Application/Services/*'
         public: true
 
+    App\Catalog\Application\Commands\Handlers\:
+        resource: '../../src/Catalog/Application/Commands/Handlers/*'
+
     App\Catalog\Application\Ports\MovieReadModel: '@App\Catalog\Infrastructure\DbalMovieReadModel'
 
 

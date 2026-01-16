@@ -10,9 +10,8 @@ use App\Catalog\Domain\Values\MovieStatus;
 
 class Movie
 {
-    public static function create(MovieDetails $details, MovieLength $length): self
+    public static function create(MovieId $id, MovieDetails $details, MovieLength $length): self
     {
-        $id = MovieId::generate();
         $status = MovieStatus::UPCOMING;
 
         return new self($id, $status, $details, $length);

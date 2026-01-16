@@ -13,6 +13,10 @@ framework:
                     allow_no_handlers: true
             job.bus: ~
             domain_event.bus: ~
+            command.bus:
+                middleware:
+                    - doctrine_transaction
+            query.bus: ~
 
         transports:
             sync: 'sync://'
@@ -34,10 +38,10 @@ framework:
                         '%app%':
                             binding_keys: [ '#' ]
         routing:
+            App\Core\Application\Command: 'sync'
 
 when@test:
     framework:
         messenger:
             transports:
-                sync: 'test://?support_delay_stamp=true&catch_exceptions=false'
                 async: 'test://?support_delay_stamp=true&catch_exceptions=false'

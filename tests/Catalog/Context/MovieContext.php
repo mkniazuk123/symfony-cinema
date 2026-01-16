@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Catalog\Context;
 
+use App\Catalog\Application\Commands\ArchiveMovieCommand;
+use App\Catalog\Application\Commands\CreateMovieCommand;
+use App\Catalog\Application\Commands\ReleaseMovieCommand;
+use App\Catalog\Application\Commands\UpdateMovieDetailsCommand;
+use App\Catalog\Application\Commands\UpdateMovieLengthCommand;
 use App\Catalog\Application\Exceptions\MovieNotFoundException;
 use App\Catalog\Application\Model\MovieDto;
 use App\Catalog\Application\Model\MovieListDto;
@@ -15,6 +20,7 @@ use App\Catalog\Domain\Values\MovieId;
 use App\Catalog\Domain\Values\MovieLength;
 use App\Catalog\Domain\Values\MovieStatus;
 use App\Catalog\Domain\Values\MovieTitle;
+use App\Core\Application\CommandBus;
 use App\Tests\Catalog\Fixtures\MovieBuilder;
 use App\Tests\Catalog\Fixtures\MovieDetailsBuilder;
 use Behat\Behat\Context\Context;
@@ -32,6 +38,7 @@ final class MovieContext implements Context
 
     public function __construct(
         private MovieService $movieService,
+        private CommandBus $commandBus,
         private MovieRepository $movieRepository,
     ) {
     }
@@ -74,11 +81,16 @@ final class MovieContext implements Context
     #[When('I create a movie :title with length :length minutes')]
     public function iCreateAMovieWithLengthMinutes(MovieTitle $title, MovieLength $length): void
     {
+        $id = MovieId::generate();
         $details = new MovieDetailsBuilder()
             ->withTitle($title)
             ->build();
 
-        $this->execute(fn () => $this->movieService->createMovie($details, $length));
+        $this->execute(function () use ($id, $details, $length) {
+            $this->commandBus->dispatch(new CreateMovieCommand($id, $details, $length));
+
+            return $id;
+        });
     }
 
     #[When('I retrieve a movie list')]
@@ -97,25 +109,25 @@ final class MovieContext implements Context
     public function iUpdateTheMovieDetailsWithTitle(MovieId $id, MovieTitle $title): void
     {
         $details = new MovieDetailsBuilder()->withTitle($title)->build();
-        $this->execute(fn () => $this->movieService->updateMovieDetails($id, $details));
+        $this->execute(fn () => $this->commandBus->dispatch(new UpdateMovieDetailsCommand($id, $details)));
     }
 
     #[When('I update the movie :id length to :length minutes')]
     public function iUpdateTheMovieLengthToMinutes(MovieId $id, MovieLength $length): void
     {
-        $this->execute(fn () => $this->movieService->updateMovieLength($id, $length));
+        $this->execute(fn () => $this->commandBus->dispatch(new UpdateMovieLengthCommand($id, $length)));
     }
 
     #[When('I release the movie :id')]
     public function iReleaseTheMovie(MovieId $id): void
     {
-        $this->execute(fn () => $this->movieService->releaseMovie($id));
+        $this->execute(fn () => $this->commandBus->dispatch(new ReleaseMovieCommand($id)));
     }
 
     #[When('I archive the movie :id')]
     public function iArchiveTheMovie(MovieId $id): void
     {
-        $this->execute(fn () => $this->movieService->archiveMovie($id));
+        $this->execute(fn () => $this->commandBus->dispatch(new ArchiveMovieCommand($id)));
     }
 
     #[Then('The movie should be created successfully')]
