@@ -10,7 +10,7 @@ use App\Catalog\Application\Query\GetMovieQuery;
 use App\Catalog\Application\Query\ListMoviesQuery;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class MovieQueryHandler
+class MovieHandler
 {
     public function __construct(
         private MovieReadModel $movieReadModel,

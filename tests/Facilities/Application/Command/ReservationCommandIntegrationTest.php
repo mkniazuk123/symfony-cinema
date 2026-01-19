@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Tests\Facilities\Application\Services;
+namespace App\Tests\Facilities\Application\Command;
 
 use App\Core\Domain\DateTimeRange;
+use App\Facilities\Application\Command\CancelReservationCommand;
+use App\Facilities\Application\Command\CreateReservationCommand;
 use App\Facilities\Application\Exceptions\HallNotFoundException;
 use App\Facilities\Application\Exceptions\ReservationNotFoundException;
-use App\Facilities\Application\Services\ReservationService;
 use App\Facilities\Domain\Exceptions\HallClosedException;
 use App\Facilities\Domain\Exceptions\InvalidReservationStatusException;
 use App\Facilities\Domain\Exceptions\InvalidTimeException;
@@ -20,11 +21,10 @@ use App\Tests\Facilities\Fixtures\ReservationBuilder;
 use App\Tests\IntegrationTestCase;
 use PHPUnit\Framework\Attributes\TestWith;
 
-class ReservationServiceIntegrationTest extends IntegrationTestCase
+class ReservationCommandIntegrationTest extends IntegrationTestCase
 {
     private ReservationRepository $reservationRepository;
     private HallRepository $hallRepository;
-    private ReservationService $reservationService;
 
     protected function setUp(): void
     {
@@ -33,22 +33,22 @@ class ReservationServiceIntegrationTest extends IntegrationTestCase
         $container = static::getContainer();
         $this->reservationRepository = $container->get(ReservationRepository::class);
         $this->hallRepository = $container->get(HallRepository::class);
-        $this->reservationService = $container->get(ReservationService::class);
     }
 
     public function testCreateReservation(): void
     {
         // Arrange:
+        $id = ReservationId::generate();
         $hall = new HallBuilder()->open()->build();
         $this->hallRepository->save($hall);
 
         $time = DateTimeRange::parse('2100-07-01T10:00:00+00:00', '2100-07-01T12:00:00+00:00');
 
         // Act:
-        $reservationId = $this->reservationService->createReservation($hall->getId(), $time);
+        $this->commandBus->dispatch(new CreateReservationCommand($id, $hall->getId(), $time));
 
         // Assert:
-        $createdReservation = $this->reservationRepository->find($reservationId);
+        $createdReservation = $this->reservationRepository->find($id);
         $this->assertNotNull($createdReservation);
 
         $this->assertEquals($hall->getId(), $createdReservation->getHallId());
@@ -66,7 +66,7 @@ class ReservationServiceIntegrationTest extends IntegrationTestCase
         $this->expectException(HallNotFoundException::class);
 
         // Act:
-        $this->reservationService->createReservation($hallId, $time);
+        $this->commandBus->dispatch(new CreateReservationCommand(ReservationId::generate(), $hallId, $time));
     }
 
     public function testCannotCreateReservationForClosedHall(): void
@@ -81,7 +81,7 @@ class ReservationServiceIntegrationTest extends IntegrationTestCase
         $this->expectException(HallClosedException::class);
 
         // Act:
-        $this->reservationService->createReservation($hall->getId(), $time);
+        $this->commandBus->dispatch(new CreateReservationCommand(ReservationId::generate(), $hall->getId(), $time));
     }
 
     public function testCannotCreateReservationForPastTime(): void
@@ -97,7 +97,7 @@ class ReservationServiceIntegrationTest extends IntegrationTestCase
         $this->expectExceptionMessage('Cannot create reservation for past time.');
 
         // Act:
-        $this->reservationService->createReservation($hall->getId(), $time);
+        $this->commandBus->dispatch(new CreateReservationCommand(ReservationId::generate(), $hall->getId(), $time));
     }
 
     public function testCannotCreateReservationForUnavailableTime(): void
@@ -119,7 +119,7 @@ class ReservationServiceIntegrationTest extends IntegrationTestCase
         $this->expectException(UnavailableTimeException::class);
 
         // Act:
-        $this->reservationService->createReservation($hall->getId(), $newReservationTime);
+        $this->commandBus->dispatch(new CreateReservationCommand(ReservationId::generate(), $hall->getId(), $newReservationTime));
     }
 
     public function testCancelReservation(): void
@@ -135,7 +135,7 @@ class ReservationServiceIntegrationTest extends IntegrationTestCase
         $this->reservationRepository->save($reservation);
 
         // Act:
-        $this->reservationService->cancelReservation($reservation->getId());
+        $this->commandBus->dispatch(new CancelReservationCommand($reservation->getId()));
 
         // Assert:
         $cancelledReservation = $this->reservationRepository->find($reservation->getId());
@@ -152,7 +152,7 @@ class ReservationServiceIntegrationTest extends IntegrationTestCase
         $this->expectException(ReservationNotFoundException::class);
 
         // Act:
-        $this->reservationService->cancelReservation($reservationId);
+        $this->commandBus->dispatch(new CancelReservationCommand($reservationId));
     }
 
     #[TestWith([ReservationStatus::DRAFT])]
@@ -173,7 +173,7 @@ class ReservationServiceIntegrationTest extends IntegrationTestCase
         $this->expectException(InvalidReservationStatusException::class);
 
         // Act:
-        $this->reservationService->cancelReservation($reservation->getId());
+        $this->commandBus->dispatch(new CancelReservationCommand($reservation->getId()));
     }
 
     public function testCannotCancelPastReservation(): void
@@ -194,6 +194,6 @@ class ReservationServiceIntegrationTest extends IntegrationTestCase
         $this->expectExceptionMessage('Cannot cancel reservation for past time.');
 
         // Act:
-        $this->reservationService->cancelReservation($reservation->getId());
+        $this->commandBus->dispatch(new CancelReservationCommand($reservation->getId()));
     }
 }

@@ -16,10 +16,10 @@ use App\Facilities\Domain\Values\ReservationStatus;
 class Reservation
 {
     public static function create(
+        ReservationId $id,
         HallId $hallId,
         DateTimeRange $time,
     ): self {
-        $id = ReservationId::generate();
         $status = ReservationStatus::DRAFT;
 
         return new self($id, $hallId, $time, $status);

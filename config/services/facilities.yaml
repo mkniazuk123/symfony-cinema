@@ -11,9 +11,11 @@ services:
 
 
     ### Application
-    App\Facilities\Application\Services\:
-        resource: '../../src/Facilities/Application/Services/*'
-        public: true
+    App\Facilities\Application\Command\Handler\:
+        resource: '../../src/Facilities/Application/Command/Handler/*'
+
+    App\Facilities\Application\Query\Handler\:
+        resource: '../../src/Facilities/Application/Query/Handler/*'
 
     App\Facilities\Application\Ports\HallReadModel: '@App\Facilities\Infrastructure\DbalHallReadModel'
     App\Facilities\Application\Ports\ReservationReadModel: '@App\Facilities\Infrastructure\DbalReservationReadModel'

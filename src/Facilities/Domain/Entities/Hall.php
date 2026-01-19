@@ -11,9 +11,8 @@ use App\Facilities\Domain\Values\SeatingLayout;
 
 class Hall
 {
-    public static function create(HallName $name, SeatingLayout $layout): self
+    public static function create(HallId $id, HallName $name, SeatingLayout $layout): self
     {
-        $id = HallId::generate();
         $status = HallStatus::OPEN;
         $capacity = new HallCapacity($layout->countSeats());
 

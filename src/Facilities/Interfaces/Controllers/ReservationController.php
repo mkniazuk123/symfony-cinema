@@ -2,10 +2,15 @@
 
 namespace App\Facilities\Interfaces\Controllers;
 
+use App\Core\Application\CommandBus;
+use App\Core\Application\QueryBus;
 use App\Core\Interfaces\Controllers\ApiController;
+use App\Facilities\Application\Command\CancelReservationCommand;
+use App\Facilities\Application\Command\CreateReservationCommand;
 use App\Facilities\Application\Exceptions\HallNotFoundException;
 use App\Facilities\Application\Exceptions\ReservationNotFoundException;
-use App\Facilities\Application\Services\ReservationService;
+use App\Facilities\Application\Query\GetReservationQuery;
+use App\Facilities\Application\Query\GetReservationsQuery;
 use App\Facilities\Domain\Exceptions\HallClosedException;
 use App\Facilities\Domain\Exceptions\InvalidReservationStatusException;
 use App\Facilities\Domain\Exceptions\InvalidTimeException;
@@ -27,8 +32,10 @@ use Symfony\Component\Routing\Attribute\Route;
 #[AsController]
 class ReservationController extends ApiController
 {
-    public function __construct(private ReservationService $service)
-    {
+    public function __construct(
+        private CommandBus $commandBus,
+        private QueryBus $queryBus,
+    ) {
     }
 
     #[Route(path: '/halls/{hallId}/reservations', methods: ['POST'])]
@@ -37,10 +44,11 @@ class ReservationController extends ApiController
         #[MapRequestPayload] CreateReservationRequest $request,
     ): Response {
         $data = $request->resolve();
+        $id = ReservationId::generate();
         $time = $data['time'];
 
         try {
-            $reservationId = $this->service->createReservation($hallId, $time);
+            $this->commandBus->dispatch(new CreateReservationCommand($id, $hallId, $time));
         } catch (HallNotFoundException $exception) {
             $this->apiProblem(HallNotFoundApiProblem::fromException($exception));
         } catch (HallClosedException $exception) {
@@ -51,15 +59,13 @@ class ReservationController extends ApiController
             $this->apiProblem(UnavailableTimeApiProblem::fromException($exception));
         }
 
-        $reservation = $this->service->getReservation($reservationId);
-
-        return $this->jsonResponse($reservation, status: 201);
+        return $this->sendReservation($id, status: 201);
     }
 
     #[Route(path: '/reservations', methods: ['GET'])]
     public function getReservations(): Response
     {
-        $reservations = $this->service->getReservations();
+        $reservations = $this->queryBus->query(new GetReservationsQuery());
 
         return $this->jsonResponse($reservations);
     }
@@ -68,19 +74,17 @@ class ReservationController extends ApiController
     public function getReservation(ReservationId $reservationId): Response
     {
         try {
-            $reservation = $this->service->getReservation($reservationId);
+            return $this->sendReservation($reservationId);
         } catch (ReservationNotFoundException $exception) {
             $this->apiProblem(ReservationNotFoundApiProblem::fromException($exception));
         }
-
-        return $this->jsonResponse($reservation);
     }
 
     #[Route(path: '/reservations/{reservationId}/cancel', methods: ['POST'])]
     public function cancelReservation(ReservationId $reservationId): Response
     {
         try {
-            $this->service->cancelReservation($reservationId);
+            $this->commandBus->dispatch(new CancelReservationCommand($reservationId));
         } catch (ReservationNotFoundException $exception) {
             $this->apiProblem(ReservationNotFoundApiProblem::fromException($exception));
         } catch (InvalidReservationStatusException $exception) {
@@ -89,8 +93,13 @@ class ReservationController extends ApiController
             $this->apiProblem(InvalidTimeApiProblem::fromException($exception));
         }
 
-        $reservation = $this->service->getReservation($reservationId);
+        return $this->sendReservation($reservationId);
+    }
 
-        return $this->jsonResponse($reservation);
+    private function sendReservation(ReservationId $id, int $status = 200): Response
+    {
+        $reservation = $this->queryBus->query(new GetReservationQuery($id));
+
+        return $this->jsonResponse($reservation, status: $status);
     }
 }

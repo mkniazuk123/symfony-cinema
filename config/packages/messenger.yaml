@@ -39,6 +39,7 @@ framework:
                             binding_keys: [ '#' ]
         routing:
             App\Core\Application\Command: 'sync'
+            App\Core\Application\Query: 'sync'
 
 when@test:
     framework:

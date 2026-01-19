@@ -13,7 +13,7 @@ use App\Catalog\Domain\Exceptions\InvalidMovieStatusException;
 use App\Catalog\Domain\Ports\MovieRepository;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class MovieCommandsHandler
+class MovieHandler
 {
     public function __construct(private MovieRepository $movieRepository)
     {

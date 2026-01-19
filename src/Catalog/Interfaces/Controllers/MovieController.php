@@ -43,9 +43,8 @@ class MovieController extends ApiController
         $length = $request->length->build();
 
         $this->commandBus->dispatch(new CreateMovieCommand($id, $details, $length));
-        $movie = $this->queryBus->query(new GetMovieQuery($id));
 
-        return $this->jsonResponse($movie, status: 201);
+        return $this->sendMovie($id, status: 201);
     }
 
     #[Route(methods: ['GET'])]
@@ -60,12 +59,10 @@ class MovieController extends ApiController
     public function getMovie(MovieId $id): Response
     {
         try {
-            $movie = $this->queryBus->query(new GetMovieQuery($id));
+            return $this->sendMovie($id);
         } catch (MovieNotFoundException $exception) {
             $this->apiProblem(MovieNotFoundApiProblem::fromException($exception));
         }
-
-        return $this->jsonResponse($movie);
     }
 
     #[Route(path: '/{id}/details', methods: ['PUT'])]
@@ -74,19 +71,16 @@ class MovieController extends ApiController
         #[MapRequestPayload] MovieDetailsRequest $request,
     ): Response {
         $details = $request->build();
-        $command = new UpdateMovieDetailsCommand($id, $details);
 
         try {
-            $this->commandBus->dispatch($command);
+            $this->commandBus->dispatch(new UpdateMovieDetailsCommand($id, $details));
         } catch (MovieNotFoundException $exception) {
             $this->apiProblem(MovieNotFoundApiProblem::fromException($exception));
         } catch (InvalidMovieStatusException $exception) {
             $this->apiProblem(InvalidMovieStatusApiProblem::fromException($exception));
         }
 
-        $movie = $this->queryBus->query(new GetMovieQuery($id));
-
-        return $this->jsonResponse($movie);
+        return $this->sendMovie($id);
     }
 
     #[Route(path: '/{id}/length', methods: ['PUT'])]
@@ -95,53 +89,50 @@ class MovieController extends ApiController
         #[MapRequestPayload] MovieLengthRequest $request,
     ): Response {
         $length = $request->build();
-        $command = new UpdateMovieLengthCommand($id, $length);
 
         try {
-            $this->commandBus->dispatch($command);
+            $this->commandBus->dispatch(new UpdateMovieLengthCommand($id, $length));
         } catch (MovieNotFoundException $exception) {
             $this->apiProblem(MovieNotFoundApiProblem::fromException($exception));
         } catch (InvalidMovieStatusException $exception) {
             $this->apiProblem(InvalidMovieStatusApiProblem::fromException($exception));
         }
 
-        $movie = $this->queryBus->query(new GetMovieQuery($id));
-
-        return $this->jsonResponse($movie);
+        return $this->sendMovie($id);
     }
 
     #[Route(path: '/{id}/release', methods: ['POST'])]
     public function releaseMovie(MovieId $id): Response
     {
-        $command = new ReleaseMovieCommand($id);
-
         try {
-            $this->commandBus->dispatch($command);
+            $this->commandBus->dispatch(new ReleaseMovieCommand($id));
         } catch (MovieNotFoundException $exception) {
             $this->apiProblem(MovieNotFoundApiProblem::fromException($exception));
         } catch (InvalidMovieStatusException $exception) {
             $this->apiProblem(InvalidMovieStatusApiProblem::fromException($exception));
         }
 
-        $movie = $this->queryBus->query(new GetMovieQuery($id));
-
-        return $this->jsonResponse($movie);
+        return $this->sendMovie($id);
     }
 
     #[Route(path: '/{id}/archive', methods: ['POST'])]
     public function archiveMovie(MovieId $id): Response
     {
-        $command = new ArchiveMovieCommand($id);
         try {
-            $this->commandBus->dispatch($command);
+            $this->commandBus->dispatch(new ArchiveMovieCommand($id));
         } catch (MovieNotFoundException $exception) {
             $this->apiProblem(MovieNotFoundApiProblem::fromException($exception));
         } catch (InvalidMovieStatusException $exception) {
             $this->apiProblem(InvalidMovieStatusApiProblem::fromException($exception));
         }
 
+        return $this->sendMovie($id);
+    }
+
+    private function sendMovie(MovieId $id, int $status = 200): Response
+    {
         $movie = $this->queryBus->query(new GetMovieQuery($id));
 
-        return $this->jsonResponse($movie);
+        return $this->jsonResponse($movie, status: $status);
     }
 }

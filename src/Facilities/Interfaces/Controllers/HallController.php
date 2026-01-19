@@ -2,10 +2,20 @@
 
 namespace App\Facilities\Interfaces\Controllers;
 
+use App\Core\Application\CommandBus;
+use App\Core\Application\QueryBus;
 use App\Core\Interfaces\Controllers\ApiController;
+use App\Facilities\Application\Command\ArchiveHallCommand;
+use App\Facilities\Application\Command\CloseHallCommand;
+use App\Facilities\Application\Command\CreateHallCommand;
+use App\Facilities\Application\Command\OpenHallCommand;
+use App\Facilities\Application\Command\RenameHallCommand;
+use App\Facilities\Application\Command\UpdateHallLayoutCommand;
 use App\Facilities\Application\Exceptions\HallNotFoundException;
 use App\Facilities\Application\Exceptions\InvalidLayoutException;
-use App\Facilities\Application\Services\HallService;
+use App\Facilities\Application\Query\GetHallLayoutQuery;
+use App\Facilities\Application\Query\GetHallQuery;
+use App\Facilities\Application\Query\GetHallsQuery;
 use App\Facilities\Domain\Exceptions\InvalidHallStatusException;
 use App\Facilities\Domain\Values\HallId;
 use App\Facilities\Interfaces\ApiProblems\HallNotFoundApiProblem;
@@ -23,32 +33,33 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route(path: '/halls')]
 class HallController extends ApiController
 {
-    public function __construct(private HallService $service)
-    {
+    public function __construct(
+        private CommandBus $commandBus,
+        private QueryBus $queryBus,
+    ) {
     }
 
     #[Route(methods: ['POST'])]
     public function createHall(#[MapRequestPayload] CreateHallRequest $request): Response
     {
         $data = $request->resolve();
+        $id = HallId::generate();
         $name = $data['name'];
         $layout = $data['layout'];
 
         try {
-            $hallId = $this->service->createHall($name, $layout);
+            $this->commandBus->dispatch(new CreateHallCommand($id, $name, $layout));
         } catch (InvalidLayoutException $exception) {
             $this->apiProblem(InvalidLayoutApiProblem::fromException($exception));
         }
 
-        $hall = $this->service->getHall($hallId);
-
-        return $this->jsonResponse($hall, status: 201);
+        return $this->sendHall($id, 201);
     }
 
     #[Route(methods: ['GET'])]
     public function getHalls(): Response
     {
-        $halls = $this->service->getHalls();
+        $halls = $this->queryBus->query(new GetHallsQuery());
 
         return $this->jsonResponse($halls);
     }
@@ -57,19 +68,17 @@ class HallController extends ApiController
     public function getHall(HallId $id): Response
     {
         try {
-            $hall = $this->service->getHall($id);
+            return $this->sendHall($id);
         } catch (HallNotFoundException $exception) {
             $this->apiProblem(HallNotFoundApiProblem::fromException($exception));
         }
-
-        return $this->jsonResponse($hall);
     }
 
     #[Route(path: '/{id}/layout', methods: ['GET'])]
     public function getHallLayout(HallId $id): Response
     {
         try {
-            $layout = $this->service->getHallLayout($id);
+            $layout = $this->queryBus->query(new GetHallLayoutQuery($id));
         } catch (HallNotFoundException $exception) {
             $this->apiProblem(HallNotFoundApiProblem::fromException($exception));
         }
@@ -86,16 +95,14 @@ class HallController extends ApiController
         $name = $data['name'];
 
         try {
-            $this->service->renameHall($id, $name);
+            $this->commandBus->dispatch(new RenameHallCommand($id, $name));
         } catch (HallNotFoundException $exception) {
             $this->apiProblem(HallNotFoundApiProblem::fromException($exception));
         } catch (InvalidHallStatusException $exception) {
             $this->apiProblem(InvalidHallStatusApiProblem::fromException($exception));
         }
 
-        $hall = $this->service->getHall($id);
-
-        return $this->jsonResponse($hall);
+        return $this->sendHall($id);
     }
 
     #[Route(path: '/{id}/layout', methods: ['PUT'])]
@@ -107,7 +114,7 @@ class HallController extends ApiController
         $layout = $data['layout'];
 
         try {
-            $this->service->updateHallLayout($id, $layout);
+            $this->commandBus->dispatch(new UpdateHallLayoutCommand($id, $layout));
         } catch (HallNotFoundException $exception) {
             $this->apiProblem(HallNotFoundApiProblem::fromException($exception));
         } catch (InvalidLayoutException $exception) {
@@ -116,56 +123,55 @@ class HallController extends ApiController
             $this->apiProblem(InvalidHallStatusApiProblem::fromException($exception));
         }
 
-        $hall = $this->service->getHall($id);
-
-        return $this->jsonResponse($hall);
+        return $this->sendHall($id);
     }
 
     #[Route(path: '/{id}/close', methods: ['POST'])]
     public function closeHall(HallId $id): Response
     {
         try {
-            $this->service->closeHall($id);
+            $this->commandBus->dispatch(new CloseHallCommand($id));
         } catch (HallNotFoundException $exception) {
             $this->apiProblem(HallNotFoundApiProblem::fromException($exception));
         } catch (InvalidHallStatusException $exception) {
             $this->apiProblem(InvalidHallStatusApiProblem::fromException($exception));
         }
 
-        $hall = $this->service->getHall($id);
-
-        return $this->jsonResponse($hall);
+        return $this->sendHall($id);
     }
 
     #[Route(path: '/{id}/open', methods: ['POST'])]
     public function openHall(HallId $id): Response
     {
         try {
-            $this->service->openHall($id);
+            $this->commandBus->dispatch(new OpenHallCommand($id));
         } catch (HallNotFoundException $exception) {
             $this->apiProblem(HallNotFoundApiProblem::fromException($exception));
         } catch (InvalidHallStatusException $exception) {
             $this->apiProblem(InvalidHallStatusApiProblem::fromException($exception));
         }
 
-        $hall = $this->service->getHall($id);
-
-        return $this->jsonResponse($hall);
+        return $this->sendHall($id);
     }
 
     #[Route(path: '/{id}/archive', methods: ['POST'])]
     public function archiveHall(HallId $id): Response
     {
         try {
-            $this->service->archiveHall($id);
+            $this->commandBus->dispatch(new ArchiveHallCommand($id));
         } catch (HallNotFoundException $exception) {
             $this->apiProblem(HallNotFoundApiProblem::fromException($exception));
         } catch (InvalidHallStatusException $exception) {
             $this->apiProblem(InvalidHallStatusApiProblem::fromException($exception));
         }
 
-        $hall = $this->service->getHall($id);
+        return $this->sendHall($id);
+    }
 
-        return $this->jsonResponse($hall);
+    private function sendHall(HallId $id, int $status = 200): Response
+    {
+        $hall = $this->queryBus->query(new GetHallQuery($id));
+
+        return $this->jsonResponse($hall, status: $status);
     }
 }

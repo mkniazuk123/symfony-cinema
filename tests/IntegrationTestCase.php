@@ -2,6 +2,8 @@
 
 namespace App\Tests;
 
+use App\Core\Application\CommandBus;
+use App\Core\Application\QueryBus;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -21,6 +23,8 @@ abstract class IntegrationTestCase extends KernelTestCase
     protected Connection $database;
     protected EntityManagerInterface $entityManager;
     protected EventDispatcherInterface $eventDispatcher;
+    protected CommandBus $commandBus;
+    protected QueryBus $queryBus;
 
     protected function setUp(): void
     {
@@ -34,6 +38,8 @@ abstract class IntegrationTestCase extends KernelTestCase
         $this->database = $container->get(Connection::class);
         $this->entityManager = $container->get(EntityManagerInterface::class);
         $this->eventDispatcher = $container->get('event_dispatcher');
+        $this->commandBus = $container->get(CommandBus::class);
+        $this->queryBus = $container->get(QueryBus::class);
 
         $this->resetDatabase();
         $this->database->beginTransaction();

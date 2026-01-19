@@ -3,18 +3,31 @@
 namespace App\Tests\Facilities\Fixtures;
 
 use App\Facilities\Domain\Entities\Hall;
+use App\Facilities\Domain\Values\HallId;
 use App\Facilities\Domain\Values\HallName;
 use App\Facilities\Domain\Values\SeatingLayout;
 
 class NewHallBuilder
 {
+    private HallId $id;
     private HallName $name;
     private SeatingLayout $layout;
 
     public function __construct()
     {
+        $this->id = HallId::generate();
         $this->name = new HallName('Default Hall Name');
         $this->layout = new SeatingLayoutBuilder()->addSampleRow()->build();
+    }
+
+    public function withId(HallId|string $id): self
+    {
+        if (is_string($id)) {
+            $id = new HallId($id);
+        }
+        $this->id = $id;
+
+        return $this;
     }
 
     public function withName(HallName|string $name): self
@@ -36,6 +49,6 @@ class NewHallBuilder
 
     public function build(): Hall
     {
-        return Hall::create($this->name, $this->layout);
+        return Hall::create($this->id, $this->name, $this->layout);
     }
 }

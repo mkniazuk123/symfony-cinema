@@ -4,10 +4,16 @@ declare(strict_types=1);
 
 namespace App\Tests\Facilities\Context;
 
+use App\Core\Application\CommandBus;
+use App\Facilities\Application\Command\ArchiveHallCommand;
+use App\Facilities\Application\Command\CloseHallCommand;
+use App\Facilities\Application\Command\CreateHallCommand;
+use App\Facilities\Application\Command\OpenHallCommand;
+use App\Facilities\Application\Command\RenameHallCommand;
+use App\Facilities\Application\Command\UpdateHallLayoutCommand;
 use App\Facilities\Application\Exceptions\HallNotFoundException;
 use App\Facilities\Application\Exceptions\InvalidLayoutException;
 use App\Facilities\Application\Model\SeatingLayoutDto;
-use App\Facilities\Application\Services\HallService;
 use App\Facilities\Domain\Entities\Hall;
 use App\Facilities\Domain\Exceptions\InvalidHallStatusException;
 use App\Facilities\Domain\Ports\HallRepository;
@@ -33,7 +39,7 @@ final class HallContext implements Context
     private ?\Throwable $error = null;
 
     public function __construct(
-        private HallService $hallService,
+        private CommandBus $commandBus,
         private HallRepository $hallRepository,
         private SerializerInterface $serializer,
     ) {
@@ -98,7 +104,13 @@ final class HallContext implements Context
             $layout = SeatingLayoutDto::fromDomain(new SeatingLayoutBuilder()->build());
         }
 
-        $this->execute(fn () => $this->hallService->createHall($name, $layout));
+        $this->execute(function () use ($name, $layout) {
+            $id = HallId::generate();
+            $command = new CreateHallCommand($id, $name, $layout);
+            $this->commandBus->dispatch($command);
+
+            return $id;
+        });
     }
 
     #[When('I rename the hall :id to :name')]
@@ -106,14 +118,16 @@ final class HallContext implements Context
         HallId $id,
         HallName $name,
     ): void {
-        $this->execute(fn () => $this->hallService->renameHall($id, $name));
+        $command = new RenameHallCommand($id, $name);
+        $this->execute(fn () => $this->commandBus->dispatch($command));
     }
 
     #[When('I update the hall :id layout to:')]
     public function iUpdateTheHallLayoutTo(HallId $id, PyStringNode $layout): void
     {
         $layout = $this->transformLayout($layout);
-        $this->execute(fn () => $this->hallService->updateHallLayout($id, $layout));
+        $command = new UpdateHallLayoutCommand($id, $layout);
+        $this->execute(fn () => $this->commandBus->dispatch($command));
     }
 
     #[When('I update the hall :id layout')]
@@ -125,26 +139,29 @@ final class HallContext implements Context
         $layout = new SeatingLayoutBuilder()
             ->addSampleRow($seats ?? 1);
         $layout = SeatingLayoutDto::fromDomain($layout->build());
-
-        $this->execute(fn () => $this->hallService->updateHallLayout($id, $layout));
+        $command = new UpdateHallLayoutCommand($id, $layout);
+        $this->execute(fn () => $this->commandBus->dispatch($command));
     }
 
     #[When('I open the hall :id')]
     public function iOpenTheHall(HallId $id): void
     {
-        $this->execute(fn () => $this->hallService->openHall($id));
+        $command = new OpenHallCommand($id);
+        $this->execute(fn () => $this->commandBus->dispatch($command));
     }
 
     #[When('I close the hall :id')]
     public function iCloseTheHall(HallId $id): void
     {
-        $this->execute(fn () => $this->hallService->closeHall($id));
+        $command = new CloseHallCommand($id);
+        $this->execute(fn () => $this->commandBus->dispatch($command));
     }
 
     #[When('I archive the hall :id')]
     public function iArchiveTheHall(HallId $id): void
     {
-        $this->execute(fn () => $this->hallService->archiveHall($id));
+        $command = new ArchiveHallCommand($id);
+        $this->execute(fn () => $this->commandBus->dispatch($command));
     }
 
     #[Then('The hall should be created successfully')]

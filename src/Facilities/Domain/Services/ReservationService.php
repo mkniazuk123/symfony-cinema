@@ -11,6 +11,7 @@ use App\Facilities\Domain\Exceptions\InvalidReservationStatusException;
 use App\Facilities\Domain\Exceptions\InvalidTimeException;
 use App\Facilities\Domain\Exceptions\UnavailableTimeException;
 use App\Facilities\Domain\Ports\CalendarRepository;
+use App\Facilities\Domain\Values\ReservationId;
 
 class ReservationService
 {
@@ -25,7 +26,7 @@ class ReservationService
      * @throws InvalidTimeException
      * @throws UnavailableTimeException
      */
-    public function createReservation(Hall $hall, DateTimeRange $time): Reservation
+    public function createReservation(ReservationId $id, Hall $hall, DateTimeRange $time): Reservation
     {
         if (!$hall->isOpen()) {
             throw new HallClosedException($hall->getId());
@@ -36,7 +37,7 @@ class ReservationService
         }
 
         $calendar = $this->calendarRepository->getCalendar($hall->getId(), $time);
-        $reservation = Reservation::create($hall->getId(), $time);
+        $reservation = Reservation::create($id, $hall->getId(), $time);
 
         try {
             $reservation->confirm($calendar);
