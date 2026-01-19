@@ -2,13 +2,14 @@
 
 namespace App\Catalog\Interfaces\Controllers;
 
-use App\Catalog\Application\Commands\ArchiveMovieCommand;
-use App\Catalog\Application\Commands\CreateMovieCommand;
-use App\Catalog\Application\Commands\ReleaseMovieCommand;
-use App\Catalog\Application\Commands\UpdateMovieDetailsCommand;
-use App\Catalog\Application\Commands\UpdateMovieLengthCommand;
+use App\Catalog\Application\Command\ArchiveMovieCommand;
+use App\Catalog\Application\Command\CreateMovieCommand;
+use App\Catalog\Application\Command\ReleaseMovieCommand;
+use App\Catalog\Application\Command\UpdateMovieDetailsCommand;
+use App\Catalog\Application\Command\UpdateMovieLengthCommand;
 use App\Catalog\Application\Exceptions\MovieNotFoundException;
-use App\Catalog\Application\Services\MovieService;
+use App\Catalog\Application\Query\GetMovieQuery;
+use App\Catalog\Application\Query\ListMoviesQuery;
 use App\Catalog\Domain\Exceptions\InvalidMovieStatusException;
 use App\Catalog\Domain\Values\MovieId;
 use App\Catalog\Interfaces\ApiProblems\InvalidMovieStatusApiProblem;
@@ -17,6 +18,7 @@ use App\Catalog\Interfaces\Requests\CreateMovieRequest;
 use App\Catalog\Interfaces\Requests\MovieDetailsRequest;
 use App\Catalog\Interfaces\Requests\MovieLengthRequest;
 use App\Core\Application\CommandBus;
+use App\Core\Application\QueryBus;
 use App\Core\Interfaces\Controllers\ApiController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -28,8 +30,8 @@ use Symfony\Component\Routing\Attribute\Route;
 class MovieController extends ApiController
 {
     public function __construct(
-        private MovieService $service,
         private CommandBus $commandBus,
+        private QueryBus $queryBus,
     ) {
     }
 
@@ -41,7 +43,7 @@ class MovieController extends ApiController
         $length = $request->length->build();
 
         $this->commandBus->dispatch(new CreateMovieCommand($id, $details, $length));
-        $movie = $this->service->getMovie($id);
+        $movie = $this->queryBus->query(new GetMovieQuery($id));
 
         return $this->jsonResponse($movie, status: 201);
     }
@@ -49,7 +51,7 @@ class MovieController extends ApiController
     #[Route(methods: ['GET'])]
     public function getMovies(): Response
     {
-        $movies = $this->service->getMovies();
+        $movies = $this->queryBus->query(new ListMoviesQuery());
 
         return $this->jsonResponse($movies);
     }
@@ -58,7 +60,7 @@ class MovieController extends ApiController
     public function getMovie(MovieId $id): Response
     {
         try {
-            $movie = $this->service->getMovie($id);
+            $movie = $this->queryBus->query(new GetMovieQuery($id));
         } catch (MovieNotFoundException $exception) {
             $this->apiProblem(MovieNotFoundApiProblem::fromException($exception));
         }
@@ -82,7 +84,7 @@ class MovieController extends ApiController
             $this->apiProblem(InvalidMovieStatusApiProblem::fromException($exception));
         }
 
-        $movie = $this->service->getMovie($id);
+        $movie = $this->queryBus->query(new GetMovieQuery($id));
 
         return $this->jsonResponse($movie);
     }
@@ -103,7 +105,7 @@ class MovieController extends ApiController
             $this->apiProblem(InvalidMovieStatusApiProblem::fromException($exception));
         }
 
-        $movie = $this->service->getMovie($id);
+        $movie = $this->queryBus->query(new GetMovieQuery($id));
 
         return $this->jsonResponse($movie);
     }
@@ -121,7 +123,7 @@ class MovieController extends ApiController
             $this->apiProblem(InvalidMovieStatusApiProblem::fromException($exception));
         }
 
-        $movie = $this->service->getMovie($id);
+        $movie = $this->queryBus->query(new GetMovieQuery($id));
 
         return $this->jsonResponse($movie);
     }
@@ -138,7 +140,7 @@ class MovieController extends ApiController
             $this->apiProblem(InvalidMovieStatusApiProblem::fromException($exception));
         }
 
-        $movie = $this->service->getMovie($id);
+        $movie = $this->queryBus->query(new GetMovieQuery($id));
 
         return $this->jsonResponse($movie);
     }

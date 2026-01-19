@@ -20,6 +20,7 @@ services:
 
     ### Application
     App\Core\Application\CommandBus: '@App\Core\Infrastructure\MessengerCommandBus'
+    App\Core\Application\QueryBus: '@App\Core\Infrastructure\MessengerQueryBus'
 
 
     ### Domain:
@@ -31,3 +32,4 @@ services:
     App\Core\Infrastructure\ValidationExceptionListener: ~
     App\Core\Infrastructure\NativeClock: ~
     App\Core\Infrastructure\MessengerCommandBus: ~
+    App\Core\Infrastructure\MessengerQueryBus: ~

@@ -11,12 +11,11 @@ services:
 
 
     ### Application
-    App\Catalog\Application\Services\:
-        resource: '../../src/Catalog/Application/Services/*'
-        public: true
+    App\Catalog\Application\Command\Handler\:
+        resource: '../../src/Catalog/Application/Command/Handler/*'
 
-    App\Catalog\Application\Commands\Handlers\:
-        resource: '../../src/Catalog/Application/Commands/Handlers/*'
+    App\Catalog\Application\Query\Handler\:
+        resource: '../../src/Catalog/Application/Query/Handler/*'
 
     App\Catalog\Application\Ports\MovieReadModel: '@App\Catalog\Infrastructure\DbalMovieReadModel'
 

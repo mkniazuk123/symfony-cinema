@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Catalog\Application\Commands;
+namespace App\Catalog\Application\Command;
 
 use App\Catalog\Domain\Values\MovieId;
 use App\Catalog\Domain\Values\MovieLength;

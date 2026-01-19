@@ -4,5 +4,5 @@ namespace App\Core\Application;
 
 interface QueryBus
 {
-    public function query(Query $query): ?object;
+    public function query(Query $query): mixed;
 }

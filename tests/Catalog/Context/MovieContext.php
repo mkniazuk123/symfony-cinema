@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace App\Tests\Catalog\Context;
 
-use App\Catalog\Application\Commands\ArchiveMovieCommand;
-use App\Catalog\Application\Commands\CreateMovieCommand;
-use App\Catalog\Application\Commands\ReleaseMovieCommand;
-use App\Catalog\Application\Commands\UpdateMovieDetailsCommand;
-use App\Catalog\Application\Commands\UpdateMovieLengthCommand;
+use App\Catalog\Application\Command\ArchiveMovieCommand;
+use App\Catalog\Application\Command\CreateMovieCommand;
+use App\Catalog\Application\Command\ReleaseMovieCommand;
+use App\Catalog\Application\Command\UpdateMovieDetailsCommand;
+use App\Catalog\Application\Command\UpdateMovieLengthCommand;
 use App\Catalog\Application\Exceptions\MovieNotFoundException;
 use App\Catalog\Application\Model\MovieDto;
 use App\Catalog\Application\Model\MovieListDto;
-use App\Catalog\Application\Services\MovieService;
+use App\Catalog\Application\Query\GetMovieQuery;
+use App\Catalog\Application\Query\ListMoviesQuery;
 use App\Catalog\Domain\Entities\Movie;
 use App\Catalog\Domain\Exceptions\InvalidMovieStatusException;
 use App\Catalog\Domain\Ports\MovieRepository;
@@ -21,6 +22,7 @@ use App\Catalog\Domain\Values\MovieLength;
 use App\Catalog\Domain\Values\MovieStatus;
 use App\Catalog\Domain\Values\MovieTitle;
 use App\Core\Application\CommandBus;
+use App\Core\Application\QueryBus;
 use App\Tests\Catalog\Fixtures\MovieBuilder;
 use App\Tests\Catalog\Fixtures\MovieDetailsBuilder;
 use Behat\Behat\Context\Context;
@@ -37,8 +39,8 @@ final class MovieContext implements Context
     private ?\Throwable $error = null;
 
     public function __construct(
-        private MovieService $movieService,
         private CommandBus $commandBus,
+        private QueryBus $queryBus,
         private MovieRepository $movieRepository,
     ) {
     }
@@ -96,13 +98,13 @@ final class MovieContext implements Context
     #[When('I retrieve a movie list')]
     public function iRetrieveAMovieList(): void
     {
-        $this->execute(fn () => $this->movieService->getMovies());
+        $this->execute(fn () => $this->queryBus->query(new ListMoviesQuery()));
     }
 
     #[When('I retrieve the movie :id')]
     public function iRetrieveTheMovie(MovieId $id): void
     {
-        $this->execute(fn () => $this->movieService->getMovie($id));
+        $this->execute(fn () => $this->queryBus->query(new GetMovieQuery($id)));
     }
 
     #[When('I update the movie :id details with title :title')]

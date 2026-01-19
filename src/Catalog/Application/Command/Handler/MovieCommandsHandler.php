@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Catalog\Application\Commands\Handlers;
+namespace App\Catalog\Application\Command\Handler;
 
-use App\Catalog\Application\Commands\ArchiveMovieCommand;
-use App\Catalog\Application\Commands\CreateMovieCommand;
-use App\Catalog\Application\Commands\ReleaseMovieCommand;
-use App\Catalog\Application\Commands\UpdateMovieDetailsCommand;
-use App\Catalog\Application\Commands\UpdateMovieLengthCommand;
+use App\Catalog\Application\Command\ArchiveMovieCommand;
+use App\Catalog\Application\Command\CreateMovieCommand;
+use App\Catalog\Application\Command\ReleaseMovieCommand;
+use App\Catalog\Application\Command\UpdateMovieDetailsCommand;
+use App\Catalog\Application\Command\UpdateMovieLengthCommand;
 use App\Catalog\Application\Exceptions\MovieNotFoundException;
 use App\Catalog\Domain\Entities\Movie;
 use App\Catalog\Domain\Exceptions\InvalidMovieStatusException;
