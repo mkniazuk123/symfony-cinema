@@ -2,7 +2,7 @@
 
 namespace App\Core\Domain;
 
-abstract readonly class StringValue implements \Stringable
+abstract readonly class StringValue extends Value implements \Stringable
 {
     /**
      * @throws InvalidValueException
@@ -29,8 +29,8 @@ abstract readonly class StringValue implements \Stringable
         return $this->value;
     }
 
-    public function equals(self $other): bool
+    public function equals(Value $other): bool
     {
-        return $other->value() === $this->value();
+        return $other instanceof self && $other->value() === $this->value();
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Core\Domain;
 
-readonly class DateTime implements \Stringable
+readonly class DateTime extends Value implements \Stringable
 {
     private const FORMAT = 'Y-m-d\TH:i:sP';
 
@@ -49,9 +49,9 @@ readonly class DateTime implements \Stringable
         );
     }
 
-    public function equals(self $other): bool
+    public function equals(Value $other): bool
     {
-        return $other->value() == $this->value();
+        return $other instanceof self && $other->value() == $this->value();
     }
 
     public function __toString(): string

@@ -21,6 +21,7 @@ services:
     ### Application
     App\Core\Application\CommandBus: '@App\Core\Infrastructure\MessengerCommandBus'
     App\Core\Application\QueryBus: '@App\Core\Infrastructure\MessengerQueryBus'
+    App\Core\Domain\DomainEventBus: '@App\Core\Infrastructure\MessengerDomainEventBus'
 
 
     ### Domain:
@@ -33,3 +34,4 @@ services:
     App\Core\Infrastructure\NativeClock: ~
     App\Core\Infrastructure\MessengerCommandBus: ~
     App\Core\Infrastructure\MessengerQueryBus: ~
+    App\Core\Infrastructure\MessengerDomainEventBus: ~

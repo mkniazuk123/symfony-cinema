@@ -2,7 +2,9 @@
 
 namespace App\Catalog\Domain\Values;
 
-readonly class MovieLength
+use App\Core\Domain\Value;
+
+readonly class MovieLength extends Value
 {
     public function __construct(
         public int $minutes,
@@ -10,5 +12,10 @@ readonly class MovieLength
         if ($minutes <= 0) {
             throw new \InvalidArgumentException('Movie length must be greater than zero.');
         }
+    }
+
+    public function equals(Value $other): bool
+    {
+        return $other instanceof self && $other->minutes === $this->minutes;
     }
 }

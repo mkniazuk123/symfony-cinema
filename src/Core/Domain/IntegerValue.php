@@ -2,7 +2,7 @@
 
 namespace App\Core\Domain;
 
-abstract readonly class IntegerValue
+abstract readonly class IntegerValue extends Value
 {
     /**
      * @throws InvalidValueException
@@ -24,8 +24,8 @@ abstract readonly class IntegerValue
         return $this->value;
     }
 
-    public function equals(self $other): bool
+    public function equals(Value $other): bool
     {
-        return $other->value() === $this->value();
+        return $other instanceof self && $other->value() === $this->value();
     }
 }

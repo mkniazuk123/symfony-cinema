@@ -10,12 +10,14 @@ use App\Catalog\Domain\Values\MovieId;
 use App\Catalog\Domain\Values\MovieLength;
 use App\Catalog\Domain\Values\MovieStatus;
 use App\Catalog\Domain\Values\MovieTitle;
+use App\Core\Domain\DomainEventBus;
 use Doctrine\DBAL\Connection;
 
 class DbalMovieRepository implements MovieRepository
 {
     public function __construct(
         private Connection $connection,
+        private DomainEventBus $domainEventBus,
     ) {
     }
 
@@ -35,24 +37,10 @@ class DbalMovieRepository implements MovieRepository
 
     public function save(Movie $movie): void
     {
-        $this->connection->executeStatement(<<<SQL
-INSERT INTO catalog_movie (id, status, title, description, length)
-VALUES (?, ?, ?, ?, ?)
-ON CONFLICT (id)
-DO UPDATE
-SET status = EXCLUDED.status,
-    title = EXCLUDED.title,
-    description = EXCLUDED.description,
-    length = EXCLUDED.length
-SQL,
-            [
-                $movie->getId(),
-                $movie->getStatus()->value,
-                $movie->getDetails()->title,
-                $movie->getDetails()->description,
-                $movie->getLength()->minutes,
-            ],
-        );
+        $this->connection->transactional(function () use ($movie) {
+            $this->upsertMovie($movie);
+            $movie->publishDomainEvents($this->domainEventBus);
+        });
     }
 
     private function fetchRow(MovieId $id): ?array
@@ -79,6 +67,28 @@ SQL,
                 description: new MovieDescription($row['description']),
             ),
             length: new MovieLength((int) $row['length']),
+        );
+    }
+
+    public function upsertMovie(Movie $movie): void
+    {
+        $this->connection->executeStatement(<<<SQL
+INSERT INTO catalog_movie (id, status, title, description, length)
+VALUES (?, ?, ?, ?, ?)
+ON CONFLICT (id)
+DO UPDATE
+SET status = EXCLUDED.status,
+    title = EXCLUDED.title,
+    description = EXCLUDED.description,
+    length = EXCLUDED.length
+SQL,
+            [
+                $movie->getId(),
+                $movie->getStatus()->value,
+                $movie->getDetails()->title,
+                $movie->getDetails()->description,
+                $movie->getLength()->minutes,
+            ],
         );
     }
 }

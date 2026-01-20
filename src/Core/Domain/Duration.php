@@ -2,7 +2,7 @@
 
 namespace App\Core\Domain;
 
-readonly class Duration
+readonly class Duration extends Value
 {
     public static function seconds(int $seconds): self
     {
@@ -28,8 +28,8 @@ readonly class Duration
         return new \DateInterval('PT'.$this->inSeconds().'S');
     }
 
-    public function equals(self $other): bool
+    public function equals(Value $other): bool
     {
-        return $other->inSeconds() === $this->inSeconds();
+        return $other instanceof self && $other->inSeconds() === $this->inSeconds();
     }
 }

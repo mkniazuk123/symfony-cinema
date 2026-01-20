@@ -2,6 +2,7 @@
 
 namespace App\Facilities\Domain\Entities;
 
+use App\Core\Domain\AggregateRoot;
 use App\Facilities\Domain\Exceptions\InvalidHallStatusException;
 use App\Facilities\Domain\Values\HallCapacity;
 use App\Facilities\Domain\Values\HallId;
@@ -9,7 +10,10 @@ use App\Facilities\Domain\Values\HallName;
 use App\Facilities\Domain\Values\HallStatus;
 use App\Facilities\Domain\Values\SeatingLayout;
 
-class Hall
+/**
+ * @extends AggregateRoot<HallId>
+ */
+class Hall extends AggregateRoot
 {
     public static function create(HallId $id, HallName $name, SeatingLayout $layout): self
     {
@@ -30,17 +34,13 @@ class Hall
     }
 
     private function __construct(
-        private HallId $id,
+        HallId $id,
         private HallStatus $status,
         private HallName $name,
         private HallCapacity $capacity,
         private SeatingLayout $layout,
     ) {
-    }
-
-    public function getId(): HallId
-    {
-        return $this->id;
+        parent::__construct($id);
     }
 
     public function getStatus(): HallStatus

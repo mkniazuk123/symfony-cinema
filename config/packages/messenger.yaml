@@ -12,7 +12,10 @@ framework:
                     enabled: true
                     allow_no_handlers: true
             job.bus: ~
-            domain_event.bus: ~
+            domain_event.bus:
+                default_middleware:
+                    enabled: true
+                    allow_no_handlers: true
             command.bus:
                 middleware:
                     - doctrine_transaction
@@ -40,6 +43,7 @@ framework:
         routing:
             App\Core\Application\Command: 'sync'
             App\Core\Application\Query: 'sync'
+            App\Core\Domain\DomainEvent: 'async'
 
 when@test:
     framework:

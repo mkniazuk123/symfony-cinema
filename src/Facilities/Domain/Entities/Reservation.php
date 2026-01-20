@@ -2,6 +2,7 @@
 
 namespace App\Facilities\Domain\Entities;
 
+use App\Core\Domain\AggregateRoot;
 use App\Core\Domain\Clock;
 use App\Core\Domain\DateTimeRange;
 use App\Core\Domain\InvalidValueException;
@@ -13,7 +14,10 @@ use App\Facilities\Domain\Values\HallId;
 use App\Facilities\Domain\Values\ReservationId;
 use App\Facilities\Domain\Values\ReservationStatus;
 
-class Reservation
+/**
+ * @extends AggregateRoot<ReservationId>
+ */
+class Reservation extends AggregateRoot
 {
     public static function create(
         ReservationId $id,
@@ -35,16 +39,12 @@ class Reservation
     }
 
     private function __construct(
-        private ReservationId $id,
+        ReservationId $id,
         private HallId $hallId,
         private DateTimeRange $time,
         private ReservationStatus $status,
     ) {
-    }
-
-    public function getId(): ReservationId
-    {
-        return $this->id;
+        parent::__construct($id);
     }
 
     public function getHallId(): HallId

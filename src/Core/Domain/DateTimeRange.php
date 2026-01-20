@@ -5,7 +5,7 @@ namespace App\Core\Domain;
 /**
  * Represents a [start, end) date time range.
  */
-readonly class DateTimeRange
+readonly class DateTimeRange extends Value
 {
     public static function parse(
         string $start,
@@ -29,9 +29,9 @@ readonly class DateTimeRange
         }
     }
 
-    public function equals(self $other): bool
+    public function equals(Value $other): bool
     {
-        return $other->start->equals($this->start) && $other->end->equals($this->end);
+        return $other instanceof self && $other->start->equals($this->start) && $other->end->equals($this->end);
     }
 
     public function isFuture(Clock $clock): bool
