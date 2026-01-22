@@ -19,18 +19,18 @@ abstract readonly class StringValue extends Value implements \Stringable
         static::validate($value);
     }
 
-    public function value(): string
+    final public function value(): string
     {
         return $this->value;
     }
 
-    public function __toString(): string
+    final public function __toString(): string
     {
         return $this->value;
     }
 
-    public function equals(Value $other): bool
+    final public function equals(Value $other): bool
     {
-        return $other instanceof self && $other->value() === $this->value();
+        return $other instanceof static && $other->value() === $this->value();
     }
 }

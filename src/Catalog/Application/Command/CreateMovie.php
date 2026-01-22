@@ -7,7 +7,7 @@ use App\Catalog\Domain\Values\MovieId;
 use App\Catalog\Domain\Values\MovieLength;
 use App\Core\Application\Command;
 
-readonly class CreateMovieCommand implements Command
+readonly class CreateMovie implements Command
 {
     public function __construct(
         public MovieId $id,

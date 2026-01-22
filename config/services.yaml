@@ -6,6 +6,7 @@ imports:
     - { resource: services/core.yaml }
     - { resource: services/catalog.yaml }
     - { resource: services/facilities.yaml }
+    - { resource: services/planning.yaml }
 
 services:
     _defaults:

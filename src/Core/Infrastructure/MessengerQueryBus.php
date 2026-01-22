@@ -20,6 +20,13 @@ class MessengerQueryBus implements QueryBus
     ) {
     }
 
+    /**
+     * @template T of mixed
+     *
+     * @param Query<T> $query
+     *
+     * @return T
+     */
     public function query(Query $query): mixed
     {
         try {

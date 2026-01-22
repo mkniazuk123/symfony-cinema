@@ -5,15 +5,25 @@ namespace App\Core\Domain;
 /**
  * Represents a [start, end) date time range.
  */
-readonly class DateTimeRange extends Value
+final readonly class DateTimeRange extends Value
 {
     public static function parse(
         string $start,
         string $end,
-    ): static {
-        return new static(
+    ): self {
+        return new self(
             DateTime::parse($start),
             DateTime::parse($end),
+        );
+    }
+
+    public static function startingAt(
+        DateTime $start,
+        Duration $duration,
+    ): self {
+        return new self(
+            $start,
+            $start->add($duration),
         );
     }
 
@@ -50,6 +60,14 @@ readonly class DateTimeRange extends Value
             ($this->start->equals($other->start) || $this->start->isAfter($other->start))
             && !$this->end->isAfter($other->end)
         ;
+    }
+
+    public function expandedBy(Duration $duration): self
+    {
+        return new self(
+            $this->start->subtract($duration),
+            $this->end->add($duration),
+        );
     }
 
     /**

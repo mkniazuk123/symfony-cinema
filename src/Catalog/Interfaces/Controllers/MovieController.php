@@ -2,14 +2,14 @@
 
 namespace App\Catalog\Interfaces\Controllers;
 
-use App\Catalog\Application\Command\ArchiveMovieCommand;
-use App\Catalog\Application\Command\CreateMovieCommand;
-use App\Catalog\Application\Command\ReleaseMovieCommand;
-use App\Catalog\Application\Command\UpdateMovieDetailsCommand;
-use App\Catalog\Application\Command\UpdateMovieLengthCommand;
+use App\Catalog\Application\Command\ArchiveMovie;
+use App\Catalog\Application\Command\CreateMovie;
+use App\Catalog\Application\Command\ReleaseMovie;
+use App\Catalog\Application\Command\UpdateMovieDetails;
+use App\Catalog\Application\Command\UpdateMovieLength;
 use App\Catalog\Application\Exceptions\MovieNotFoundException;
-use App\Catalog\Application\Query\GetMovieQuery;
-use App\Catalog\Application\Query\ListMoviesQuery;
+use App\Catalog\Application\Query\GetMovie;
+use App\Catalog\Application\Query\ListMovies;
 use App\Catalog\Domain\Exceptions\InvalidMovieStatusException;
 use App\Catalog\Domain\Values\MovieId;
 use App\Catalog\Interfaces\ApiProblems\InvalidMovieStatusApiProblem;
@@ -42,7 +42,7 @@ class MovieController extends ApiController
         $details = $request->details->build();
         $length = $request->length->build();
 
-        $this->commandBus->dispatch(new CreateMovieCommand($id, $details, $length));
+        $this->commandBus->dispatch(new CreateMovie($id, $details, $length));
 
         return $this->sendMovie($id, status: 201);
     }
@@ -50,7 +50,7 @@ class MovieController extends ApiController
     #[Route(methods: ['GET'])]
     public function getMovies(): Response
     {
-        $movies = $this->queryBus->query(new ListMoviesQuery());
+        $movies = $this->queryBus->query(new ListMovies());
 
         return $this->jsonResponse($movies);
     }
@@ -73,7 +73,7 @@ class MovieController extends ApiController
         $details = $request->build();
 
         try {
-            $this->commandBus->dispatch(new UpdateMovieDetailsCommand($id, $details));
+            $this->commandBus->dispatch(new UpdateMovieDetails($id, $details));
         } catch (MovieNotFoundException $exception) {
             $this->apiProblem(MovieNotFoundApiProblem::fromException($exception));
         } catch (InvalidMovieStatusException $exception) {
@@ -91,7 +91,7 @@ class MovieController extends ApiController
         $length = $request->build();
 
         try {
-            $this->commandBus->dispatch(new UpdateMovieLengthCommand($id, $length));
+            $this->commandBus->dispatch(new UpdateMovieLength($id, $length));
         } catch (MovieNotFoundException $exception) {
             $this->apiProblem(MovieNotFoundApiProblem::fromException($exception));
         } catch (InvalidMovieStatusException $exception) {
@@ -105,7 +105,7 @@ class MovieController extends ApiController
     public function releaseMovie(MovieId $id): Response
     {
         try {
-            $this->commandBus->dispatch(new ReleaseMovieCommand($id));
+            $this->commandBus->dispatch(new ReleaseMovie($id));
         } catch (MovieNotFoundException $exception) {
             $this->apiProblem(MovieNotFoundApiProblem::fromException($exception));
         } catch (InvalidMovieStatusException $exception) {
@@ -119,7 +119,7 @@ class MovieController extends ApiController
     public function archiveMovie(MovieId $id): Response
     {
         try {
-            $this->commandBus->dispatch(new ArchiveMovieCommand($id));
+            $this->commandBus->dispatch(new ArchiveMovie($id));
         } catch (MovieNotFoundException $exception) {
             $this->apiProblem(MovieNotFoundApiProblem::fromException($exception));
         } catch (InvalidMovieStatusException $exception) {
@@ -131,7 +131,7 @@ class MovieController extends ApiController
 
     private function sendMovie(MovieId $id, int $status = 200): Response
     {
-        $movie = $this->queryBus->query(new GetMovieQuery($id));
+        $movie = $this->queryBus->query(new GetMovie($id));
 
         return $this->jsonResponse($movie, status: $status);
     }

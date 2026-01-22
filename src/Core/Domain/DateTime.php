@@ -2,7 +2,7 @@
 
 namespace App\Core\Domain;
 
-readonly class DateTime extends Value implements \Stringable
+final readonly class DateTime extends Value implements \Stringable
 {
     private const FORMAT = 'Y-m-d\TH:i:sP';
 
@@ -18,8 +18,11 @@ readonly class DateTime extends Value implements \Stringable
         return new static($value);
     }
 
-    final public function __construct(private \DateTimeImmutable $value)
+    private \DateTimeImmutable $value;
+
+    final public function __construct(\DateTimeImmutable $value)
     {
+        $this->value = $this->trimValueToSeconds($value);
     }
 
     public function value(): \DateTimeImmutable
@@ -49,6 +52,13 @@ readonly class DateTime extends Value implements \Stringable
         );
     }
 
+    public function subtract(Duration $duration): self
+    {
+        return new self(
+            $this->value->sub($duration->toDateInterval())
+        );
+    }
+
     public function equals(Value $other): bool
     {
         return $other instanceof self && $other->value() == $this->value();
@@ -57,5 +67,14 @@ readonly class DateTime extends Value implements \Stringable
     public function __toString(): string
     {
         return $this->value->format(self::FORMAT);
+    }
+
+    private function trimValueToSeconds(\DateTimeImmutable $value): \DateTimeImmutable
+    {
+        return $value->setTime(
+            hour: (int) $value->format('H'),
+            minute: (int) $value->format('i'),
+            second: (int) $value->format('s'),
+        );
     }
 }

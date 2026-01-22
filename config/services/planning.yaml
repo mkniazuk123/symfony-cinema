@@ -1,0 +1,29 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+
+    ### Interfaces
+
+
+    ### Application
+    App\Planning\Application\Command\Handler\:
+        resource: '../../src/Planning/Application/Command/Handler/*'
+        public: true
+
+    ### Domain:
+    App\Planning\Domain\Services\:
+        resource: '../../src/Planning/Domain/Services/*'
+        public: true
+
+    App\Planning\Domain\Ports\HallRepository: '@App\Planning\Infrastructure\DbalHallRepository'
+    App\Planning\Domain\Ports\MovieRepository: '@App\Planning\Infrastructure\DbalMovieRepository'
+    App\Planning\Domain\Ports\ScreeningRepository: '@App\Planning\Infrastructure\DbalScreeningRepository'
+    App\Planning\Domain\Policies\SchedulingPolicy: ~
+
+
+    ### Infrastructure
+    App\Planning\Infrastructure\:
+        resource: '../../src/Planning/Infrastructure/*'

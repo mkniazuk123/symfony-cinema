@@ -19,13 +19,13 @@ abstract readonly class IntegerValue extends Value
         static::validate($value);
     }
 
-    public function value(): int
+    final public function value(): int
     {
         return $this->value;
     }
 
-    public function equals(Value $other): bool
+    final public function equals(Value $other): bool
     {
-        return $other instanceof self && $other->value() === $this->value();
+        return $other instanceof static && $other->value() === $this->value();
     }
 }

@@ -6,7 +6,7 @@ use App\Catalog\Domain\Values\MovieId;
 use App\Catalog\Domain\Values\MovieLength;
 use App\Core\Application\Command;
 
-readonly class UpdateMovieLengthCommand implements Command
+readonly class UpdateMovieLength implements Command
 {
     public function __construct(
         public MovieId $id,

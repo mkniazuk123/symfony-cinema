@@ -45,6 +45,31 @@ CREATE TABLE facilities_reservation (
     status CHARACTER VARYING NOT NULL
 );
 SQL);
+
+        $this->addSql(<<<SQL
+CREATE TABLE planning_hall (
+    id CHARACTER VARYING NOT NULL PRIMARY KEY,
+    open BOOLEAN NOT NULL
+);
+SQL);
+
+        $this->addSql(<<<SQL
+CREATE TABLE planning_movie (
+    id CHARACTER VARYING NOT NULL PRIMARY KEY,
+    duration INTEGER NOT NULL,
+    available BOOLEAN NOT NULL
+);
+SQL);
+
+        $this->addSql(<<<SQL
+CREATE TABLE planning_screening (
+    id CHARACTER VARYING NOT NULL PRIMARY KEY,
+    hall_id CHARACTER VARYING NOT NULL REFERENCES planning_hall (id),
+    movie_id CHARACTER VARYING NOT NULL REFERENCES planning_movie (id),
+    time_start TIMESTAMP(0) WITH TIME ZONE NOT NULL,
+    time_end TIMESTAMP(0) WITH TIME ZONE NOT NULL
+);
+SQL);
     }
 
     public function down(Schema $schema): void
@@ -52,5 +77,8 @@ SQL);
         $this->addSql('DROP TABLE catalog_movie');
         $this->addSql('DROP TABLE facilities_hall');
         $this->addSql('DROP TABLE facilities_reservation');
+        $this->addSql('DROP TABLE planning_screening');
+        $this->addSql('DROP TABLE planning_movie');
+        $this->addSql('DROP TABLE planning_hall');
     }
 }

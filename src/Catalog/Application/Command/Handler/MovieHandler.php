@@ -2,11 +2,11 @@
 
 namespace App\Catalog\Application\Command\Handler;
 
-use App\Catalog\Application\Command\ArchiveMovieCommand;
-use App\Catalog\Application\Command\CreateMovieCommand;
-use App\Catalog\Application\Command\ReleaseMovieCommand;
-use App\Catalog\Application\Command\UpdateMovieDetailsCommand;
-use App\Catalog\Application\Command\UpdateMovieLengthCommand;
+use App\Catalog\Application\Command\ArchiveMovie;
+use App\Catalog\Application\Command\CreateMovie;
+use App\Catalog\Application\Command\ReleaseMovie;
+use App\Catalog\Application\Command\UpdateMovieDetails;
+use App\Catalog\Application\Command\UpdateMovieLength;
 use App\Catalog\Application\Exceptions\MovieNotFoundException;
 use App\Catalog\Domain\Entities\Movie;
 use App\Catalog\Domain\Exceptions\InvalidMovieStatusException;
@@ -24,7 +24,7 @@ class MovieHandler
      * @throws InvalidMovieStatusException
      */
     #[AsMessageHandler]
-    public function archiveMovie(ArchiveMovieCommand $command): void
+    public function archiveMovie(ArchiveMovie $command): void
     {
         $movie = $this->movieRepository->find($command->id) ?? throw new MovieNotFoundException($command->id);
         $movie->archive();
@@ -32,7 +32,7 @@ class MovieHandler
     }
 
     #[AsMessageHandler]
-    public function createMovie(CreateMovieCommand $command): void
+    public function createMovie(CreateMovie $command): void
     {
         $movie = Movie::create($command->id, $command->details, $command->length);
         $this->movieRepository->save($movie);
@@ -43,7 +43,7 @@ class MovieHandler
      * @throws InvalidMovieStatusException
      */
     #[AsMessageHandler]
-    public function releaseMovie(ReleaseMovieCommand $command): void
+    public function releaseMovie(ReleaseMovie $command): void
     {
         $movie = $this->movieRepository->find($command->id) ?? throw new MovieNotFoundException($command->id);
         $movie->release();
@@ -55,7 +55,7 @@ class MovieHandler
      * @throws InvalidMovieStatusException
      */
     #[AsMessageHandler]
-    public function updateMovieDetails(UpdateMovieDetailsCommand $command): void
+    public function updateMovieDetails(UpdateMovieDetails $command): void
     {
         $movie = $this->movieRepository->find($command->id) ?? throw new MovieNotFoundException($command->id);
         $movie->updateDetails($command->details);
@@ -67,7 +67,7 @@ class MovieHandler
      * @throws InvalidMovieStatusException
      */
     #[AsMessageHandler]
-    public function updateMovieLength(UpdateMovieLengthCommand $command): void
+    public function updateMovieLength(UpdateMovieLength $command): void
     {
         $movie = $this->movieRepository->find($command->id) ?? throw new MovieNotFoundException($command->id);
         $movie->updateLength($command->length);
