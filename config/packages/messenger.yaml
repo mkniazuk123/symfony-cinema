@@ -19,6 +19,10 @@ framework:
             command.bus:
                 middleware:
                     - doctrine_transaction
+            integration.bus:
+                default_middleware:
+                    enabled: true
+                    allow_no_handlers: true
             query.bus: ~
 
         transports:
@@ -44,6 +48,7 @@ framework:
             App\Core\Application\Command: 'sync'
             App\Core\Application\Query: 'sync'
             App\Core\Domain\DomainEvent: 'async'
+            App\Core\Application\IntegrationEvent: 'async'
 
 when@test:
     framework:

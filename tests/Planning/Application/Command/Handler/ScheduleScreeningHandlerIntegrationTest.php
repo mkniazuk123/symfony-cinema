@@ -8,7 +8,7 @@ use App\Planning\Application\Command\ScheduleScreening;
 use App\Planning\Application\Exceptions\HallNotFoundException;
 use App\Planning\Application\Exceptions\MovieNotFoundException;
 use App\Planning\Domain\Exceptions\HallClosedException;
-use App\Planning\Domain\Exceptions\InvalidTimeException;
+use App\Planning\Domain\Exceptions\InsufficientTimeException;
 use App\Planning\Domain\Exceptions\MovieUnavailableException;
 use App\Planning\Domain\Exceptions\TimeConflictException;
 use App\Planning\Domain\Ports\HallRepository;
@@ -119,7 +119,7 @@ class ScheduleScreeningHandlerIntegrationTest extends IntegrationTestCase
         $time = DateTimeBuilder::future()->inHours(23)->build();
 
         // Assert:
-        $this->expectException(InvalidTimeException::class);
+        $this->expectException(InsufficientTimeException::class);
 
         // Act:
         $this->commandBus->dispatch(

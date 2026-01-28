@@ -31,7 +31,11 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use Behat\Transformation\Transform;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Webmozart\Assert\Assert;
+use Zenstruck\Messenger\Test\Bus\TestBus;
+use Zenstruck\Messenger\Test\Bus\TestBusRegistry;
+use Zenstruck\Messenger\Test\Transport\TestTransport;
 
 final class MovieContext implements Context
 {
@@ -42,12 +46,17 @@ final class MovieContext implements Context
         private CommandBus $commandBus,
         private QueryBus $queryBus,
         private MovieRepository $movieRepository,
+        #[Autowire('@zenstruck_messenger_test.bus_registry')]
+        private TestBusRegistry $testBusRegistry,
     ) {
     }
 
     #[BeforeScenario]
     public function reset(): void
     {
+        TestTransport::resetAll();
+        TestBus::resetAll();
+
         $this->response = null;
         $this->error = null;
     }
@@ -197,6 +206,17 @@ final class MovieContext implements Context
     {
         $list = $this->getResult(MovieListDto::class);
         Assert::count($list->items, $count);
+    }
+
+    #[Then('Integration event :class should be published')]
+    public function integrationEventShouldBePublished(string $class): void
+    {
+        $class = 'App\\Catalog\\API\\Events\\'.$class;
+        if (!class_exists($class)) {
+            throw new \InvalidArgumentException(sprintf('Event class %s does not exist.', $class));
+        }
+        $messages = $this->testBusRegistry->get('integration.bus')->dispatched()->messages($class);
+        Assert::notEmpty($messages, sprintf('Expected integration event of type %s to be published.', $class));
     }
 
     private function execute(callable $action): void

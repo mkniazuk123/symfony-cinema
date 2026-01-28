@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Catalog\Interfaces\Controllers;
+namespace App\Catalog\API\REST;
 
 use App\Catalog\Application\Command\ArchiveMovie;
 use App\Catalog\Application\Command\CreateMovie;
@@ -12,11 +12,6 @@ use App\Catalog\Application\Query\GetMovie;
 use App\Catalog\Application\Query\ListMovies;
 use App\Catalog\Domain\Exceptions\InvalidMovieStatusException;
 use App\Catalog\Domain\Values\MovieId;
-use App\Catalog\Interfaces\ApiProblems\InvalidMovieStatusApiProblem;
-use App\Catalog\Interfaces\ApiProblems\MovieNotFoundApiProblem;
-use App\Catalog\Interfaces\Requests\CreateMovieRequest;
-use App\Catalog\Interfaces\Requests\MovieDetailsRequest;
-use App\Catalog\Interfaces\Requests\MovieLengthRequest;
 use App\Core\Application\CommandBus;
 use App\Core\Application\QueryBus;
 use App\Core\Interfaces\Controllers\ApiController;

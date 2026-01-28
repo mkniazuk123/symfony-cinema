@@ -6,7 +6,7 @@ use App\Planning\Application\Command\ScheduleScreening;
 use App\Planning\Application\Exceptions\HallNotFoundException;
 use App\Planning\Application\Exceptions\MovieNotFoundException;
 use App\Planning\Domain\Exceptions\HallClosedException;
-use App\Planning\Domain\Exceptions\InvalidTimeException;
+use App\Planning\Domain\Exceptions\InsufficientTimeException;
 use App\Planning\Domain\Exceptions\MovieUnavailableException;
 use App\Planning\Domain\Exceptions\TimeConflictException;
 use App\Planning\Domain\Ports\HallRepository;
@@ -29,7 +29,7 @@ class ScheduleScreeningHandler
      * @throws MovieNotFoundException
      * @throws MovieUnavailableException
      * @throws HallClosedException
-     * @throws InvalidTimeException
+     * @throws InsufficientTimeException
      * @throws TimeConflictException
      */
     #[AsMessageHandler]

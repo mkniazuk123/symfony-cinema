@@ -8,8 +8,8 @@ use App\Core\Domain\DateTimeRange;
 use App\Core\Domain\InvalidValueException;
 use App\Facilities\Domain\Exceptions\InvalidReservationStatusException;
 use App\Facilities\Domain\Exceptions\InvalidTimeException;
+use App\Facilities\Domain\Exceptions\TimeConflictException;
 use App\Facilities\Domain\Exceptions\TimeOutOfScopeException;
-use App\Facilities\Domain\Exceptions\UnavailableTimeException;
 use App\Facilities\Domain\Values\HallId;
 use App\Facilities\Domain\Values\ReservationId;
 use App\Facilities\Domain\Values\ReservationStatus;
@@ -80,7 +80,7 @@ class Reservation extends AggregateRoot
     /**
      * @throws InvalidReservationStatusException
      * @throws TimeOutOfScopeException
-     * @throws UnavailableTimeException
+     * @throws TimeConflictException
      * @throws InvalidValueException
      */
     public function confirm(Calendar $calendar): void

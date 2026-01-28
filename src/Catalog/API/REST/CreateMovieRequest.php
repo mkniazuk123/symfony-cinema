@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Catalog\Interfaces\Requests;
+namespace App\Catalog\API\REST;
 
 use Symfony\Component\Validator\Constraints as Assert;
 

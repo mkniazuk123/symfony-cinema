@@ -6,7 +6,7 @@ use App\Facilities\Application\Command\CreateReservationCommand;
 use App\Facilities\Application\Exceptions\HallNotFoundException;
 use App\Facilities\Domain\Exceptions\HallClosedException;
 use App\Facilities\Domain\Exceptions\InvalidTimeException;
-use App\Facilities\Domain\Exceptions\UnavailableTimeException;
+use App\Facilities\Domain\Exceptions\TimeConflictException;
 use App\Facilities\Domain\Ports\HallRepository;
 use App\Facilities\Domain\Ports\ReservationRepository;
 use App\Facilities\Domain\Services\ReservationService as ReservationDomainService;
@@ -27,7 +27,7 @@ class CreateReservationHandler
      * @throws HallNotFoundException
      * @throws HallClosedException
      * @throws InvalidTimeException
-     * @throws UnavailableTimeException
+     * @throws TimeConflictException
      */
     public function __invoke(CreateReservationCommand $command): ReservationId
     {

@@ -10,7 +10,7 @@ use App\Facilities\Application\Exceptions\ReservationNotFoundException;
 use App\Facilities\Domain\Exceptions\HallClosedException;
 use App\Facilities\Domain\Exceptions\InvalidReservationStatusException;
 use App\Facilities\Domain\Exceptions\InvalidTimeException;
-use App\Facilities\Domain\Exceptions\UnavailableTimeException;
+use App\Facilities\Domain\Exceptions\TimeConflictException;
 use App\Facilities\Domain\Ports\HallRepository;
 use App\Facilities\Domain\Ports\ReservationRepository;
 use App\Facilities\Domain\Values\HallId;
@@ -116,7 +116,7 @@ class ReservationCommandIntegrationTest extends IntegrationTestCase
         $newReservationTime = DateTimeRange::parse('2100-07-01T10:00:00+00:00', '2100-07-01T12:00:00+00:00');
 
         // Assert:
-        $this->expectException(UnavailableTimeException::class);
+        $this->expectException(TimeConflictException::class);
 
         // Act:
         $this->commandBus->dispatch(new CreateReservationCommand(ReservationId::generate(), $hall->getId(), $newReservationTime));

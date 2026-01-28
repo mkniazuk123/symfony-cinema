@@ -5,9 +5,8 @@ services:
         public: false
 
 
-    ### Interfaces
-    App\Catalog\Interfaces\Controllers\:
-        resource: '../../src/Catalog/Interfaces/Controllers/*'
+    ### API
+    App\Catalog\API\REST\MovieController: ~
 
 
     ### Application

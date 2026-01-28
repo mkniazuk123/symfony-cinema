@@ -4,7 +4,7 @@ namespace App\Planning\Domain\Exceptions;
 
 use App\Core\Domain\DateTime;
 
-class InvalidTimeException extends \RuntimeException
+class InsufficientTimeException extends \RuntimeException
 {
     public function __construct(
         public readonly DateTime $time,

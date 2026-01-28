@@ -4,8 +4,8 @@ namespace App\Facilities\Domain\Entities;
 
 use App\Core\Domain\DateTimeRange;
 use App\Core\Domain\InvalidValueException;
+use App\Facilities\Domain\Exceptions\TimeConflictException;
 use App\Facilities\Domain\Exceptions\TimeOutOfScopeException;
-use App\Facilities\Domain\Exceptions\UnavailableTimeException;
 use App\Facilities\Domain\Values\HallId;
 use App\Facilities\Domain\Values\Reservations;
 
@@ -31,7 +31,7 @@ class Calendar
 
     /**
      * @throws TimeOutOfScopeException
-     * @throws UnavailableTimeException
+     * @throws TimeConflictException
      * @throws InvalidValueException
      */
     public function addReservation(Reservation $reservation): void
@@ -67,7 +67,7 @@ class Calendar
     }
 
     /**
-     * @throws UnavailableTimeException
+     * @throws TimeConflictException
      */
     private function assertTimeAvailable(DateTimeRange $time): void
     {
@@ -76,7 +76,7 @@ class Calendar
 
         foreach ($confirmedReservations as $reservation) {
             if ($reservation->getTime()->overlaps($time)) {
-                throw new UnavailableTimeException($this->hallId, $time);
+                throw new TimeConflictException($this->hallId, $time);
             }
         }
     }

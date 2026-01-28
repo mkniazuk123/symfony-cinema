@@ -14,7 +14,7 @@ use App\Facilities\Application\Query\GetReservationsQuery;
 use App\Facilities\Domain\Exceptions\HallClosedException;
 use App\Facilities\Domain\Exceptions\InvalidReservationStatusException;
 use App\Facilities\Domain\Exceptions\InvalidTimeException;
-use App\Facilities\Domain\Exceptions\UnavailableTimeException;
+use App\Facilities\Domain\Exceptions\TimeConflictException;
 use App\Facilities\Domain\Values\HallId;
 use App\Facilities\Domain\Values\ReservationId;
 use App\Facilities\Interfaces\ApiProblems\HallClosedApiProblem;
@@ -55,7 +55,7 @@ class ReservationController extends ApiController
             $this->apiProblem(HallClosedApiProblem::fromException($exception));
         } catch (InvalidTimeException $exception) {
             $this->apiProblem(InvalidTimeApiProblem::fromException($exception));
-        } catch (UnavailableTimeException $exception) {
+        } catch (TimeConflictException $exception) {
             $this->apiProblem(UnavailableTimeApiProblem::fromException($exception));
         }
 

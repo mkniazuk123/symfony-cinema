@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Catalog\Interfaces\ApiProblems;
+namespace App\Catalog\API\REST;
 
 use App\Catalog\Domain\Exceptions\InvalidMovieStatusException;
 use App\Core\Interfaces\ApiProblems\ApiProblem;

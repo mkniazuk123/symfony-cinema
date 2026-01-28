@@ -9,7 +9,7 @@ use App\Facilities\Domain\Entities\Reservation;
 use App\Facilities\Domain\Exceptions\HallClosedException;
 use App\Facilities\Domain\Exceptions\InvalidReservationStatusException;
 use App\Facilities\Domain\Exceptions\InvalidTimeException;
-use App\Facilities\Domain\Exceptions\UnavailableTimeException;
+use App\Facilities\Domain\Exceptions\TimeConflictException;
 use App\Facilities\Domain\Ports\CalendarRepository;
 use App\Facilities\Domain\Values\ReservationId;
 
@@ -24,7 +24,7 @@ class ReservationService
     /**
      * @throws HallClosedException
      * @throws InvalidTimeException
-     * @throws UnavailableTimeException
+     * @throws TimeConflictException
      */
     public function createReservation(ReservationId $id, Hall $hall, DateTimeRange $time): Reservation
     {
@@ -41,7 +41,7 @@ class ReservationService
 
         try {
             $reservation->confirm($calendar);
-        } catch (UnavailableTimeException $exception) {
+        } catch (TimeConflictException $exception) {
             throw $exception;
         } catch (\Throwable $exception) {
             throw new \RuntimeException('Failed to create reservation.', previous: $exception);

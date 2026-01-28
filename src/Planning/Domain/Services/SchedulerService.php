@@ -6,7 +6,7 @@ use App\Core\Domain\Clock;
 use App\Core\Domain\DateTime;
 use App\Core\Domain\DateTimeRange;
 use App\Planning\Domain\Entities\Screening;
-use App\Planning\Domain\Exceptions\InvalidTimeException;
+use App\Planning\Domain\Exceptions\InsufficientTimeException;
 use App\Planning\Domain\Exceptions\TimeConflictException;
 use App\Planning\Domain\Policies\SchedulingPolicy;
 use App\Planning\Domain\Ports\ScreeningRepository;
@@ -22,7 +22,7 @@ class SchedulerService
     }
 
     /**
-     * @throws InvalidTimeException
+     * @throws InsufficientTimeException
      * @throws TimeConflictException
      */
     public function scheduleScreening(Screening $screening): void
@@ -34,14 +34,14 @@ class SchedulerService
     }
 
     /**
-     * @throws InvalidTimeException
+     * @throws InsufficientTimeException
      */
     private function checkAdvance(DateTime $time): void
     {
         $advance = $this->policy->getMinimumAdvancePeriod();
         $schedulingBoundary = DateTime::current($this->clock)->add($advance);
         if ($time->isBefore($schedulingBoundary)) {
-            throw new InvalidTimeException($time, sprintf('Screenings must be scheduled at least %s seconds in advance.', $advance->inSeconds()));
+            throw new InsufficientTimeException($time, sprintf('Screenings must be scheduled at least %s seconds in advance.', $advance->inSeconds()));
         }
     }
 

@@ -6,6 +6,7 @@ Feature: Movie catalog
         And The movie should have title "Inception"
         And The movie should have length 148 minutes
         And The movie should have status "upcoming"
+        And Integration event "MovieCreated" should be published
 
     Scenario: Get movie
         Given There is a movie "movie1"
@@ -24,24 +25,28 @@ Feature: Movie catalog
         When I update the movie "movie1" details with title "New Title"
         Then The movie "movie1" should exists
         And The movie should have title "New Title"
+        And Integration event "MovieDetailsUpdated" should be published
 
     Scenario: Update movie length
         Given There is a movie "movie1" with length 100 minutes
         When I update the movie "movie1" length to 110 minutes
         Then The movie "movie1" should exists
         And The movie should have length 110 minutes
+        And Integration event "MovieLengthUpdated" should be published
 
     Scenario: Release movie
         Given There is a movie "movie1" with status "upcoming"
         When I release the movie "movie1"
         Then The movie "movie1" should exists
         And The movie should have status "available"
+        And Integration event "MovieReleased" should be published
 
     Scenario: Archive movie
         Given There is a movie "movie1" with status "upcoming"
         When I archive the movie "movie1"
         Then The movie "movie1" should exists
         And The movie should have status "archived"
+        And Integration event "MovieArchived" should be published
 
     Scenario: Cannot get non-existing movie
         When I retrieve the movie "non_existing_movie"

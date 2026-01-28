@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Catalog\Interfaces\Requests;
+namespace App\Catalog\API\REST;
 
 use App\Catalog\Domain\Values\MovieLength;
 use Symfony\Component\Validator\Constraints as Assert;

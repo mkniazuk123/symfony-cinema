@@ -22,6 +22,7 @@ services:
     App\Core\Application\CommandBus: '@App\Core\Infrastructure\MessengerCommandBus'
     App\Core\Application\QueryBus: '@App\Core\Infrastructure\MessengerQueryBus'
     App\Core\Domain\DomainEventBus: '@App\Core\Infrastructure\MessengerDomainEventBus'
+    App\Core\Application\IntegrationBus: '@App\Core\Infrastructure\MessengerIntegrationBus'
 
 
     ### Domain:
@@ -35,3 +36,4 @@ services:
     App\Core\Infrastructure\MessengerCommandBus: ~
     App\Core\Infrastructure\MessengerQueryBus: ~
     App\Core\Infrastructure\MessengerDomainEventBus: ~
+    App\Core\Infrastructure\MessengerIntegrationBus: ~

@@ -5,8 +5,8 @@ namespace App\Tests\Facilities\Domain\Entities;
 use App\Core\Domain\DateTimeRange;
 use App\Core\Domain\InvalidValueException;
 use App\Facilities\Domain\Entities\Calendar;
+use App\Facilities\Domain\Exceptions\TimeConflictException;
 use App\Facilities\Domain\Exceptions\TimeOutOfScopeException;
-use App\Facilities\Domain\Exceptions\UnavailableTimeException;
 use App\Facilities\Domain\Values\HallId;
 use App\Tests\Facilities\Fixtures\ReservationBuilder;
 use PHPUnit\Framework\Attributes\TestWith;
@@ -91,7 +91,7 @@ class CalendarUnitTest extends TestCase
         );
 
         // Assert:
-        $this->expectException(UnavailableTimeException::class);
+        $this->expectException(TimeConflictException::class);
 
         // Act:
         $calendar->addReservation(

@@ -3,11 +3,11 @@
 namespace App\Facilities\Interfaces\ApiProblems;
 
 use App\Core\Interfaces\ApiProblems\ApiProblem;
-use App\Facilities\Domain\Exceptions\UnavailableTimeException;
+use App\Facilities\Domain\Exceptions\TimeConflictException;
 
 readonly class UnavailableTimeApiProblem extends ApiProblem
 {
-    public static function fromException(UnavailableTimeException $exception): self
+    public static function fromException(TimeConflictException $exception): self
     {
         return self::fromArray([
             'type' => 'unavailableTime',
