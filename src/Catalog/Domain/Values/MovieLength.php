@@ -2,6 +2,7 @@
 
 namespace App\Catalog\Domain\Values;
 
+use App\Core\Domain\InvalidValueException;
 use App\Core\Domain\Value;
 
 readonly class MovieLength extends Value
@@ -10,7 +11,7 @@ readonly class MovieLength extends Value
         public int $minutes,
     ) {
         if ($minutes <= 0) {
-            throw new \InvalidArgumentException('Movie length must be greater than zero.');
+            throw new InvalidValueException('Movie length must be greater than zero.');
         }
     }
 

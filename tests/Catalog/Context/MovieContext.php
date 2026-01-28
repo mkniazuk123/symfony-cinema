@@ -73,12 +73,12 @@ final class MovieContext implements Context
         ?MovieLength $length = null,
         ?MovieStatus $status = null,
     ): void {
-        $details = new MovieDetailsBuilder();
+        $details = MovieDetailsBuilder::create();
         if (null !== $title) {
             $details->withTitle($title);
         }
 
-        $movie = new MovieBuilder($id)->withDetails($details->build());
+        $movie = MovieBuilder::reconstitute($id)->withDetails($details->build());
         if (null !== $length) {
             $movie->withLength($length);
         }
@@ -93,7 +93,7 @@ final class MovieContext implements Context
     public function iCreateAMovieWithLengthMinutes(MovieTitle $title, MovieLength $length): void
     {
         $id = MovieId::generate();
-        $details = new MovieDetailsBuilder()
+        $details = MovieDetailsBuilder::create()
             ->withTitle($title)
             ->build();
 
@@ -119,7 +119,7 @@ final class MovieContext implements Context
     #[When('I update the movie :id details with title :title')]
     public function iUpdateTheMovieDetailsWithTitle(MovieId $id, MovieTitle $title): void
     {
-        $details = new MovieDetailsBuilder()->withTitle($title)->build();
+        $details = MovieDetailsBuilder::create()->withTitle($title)->build();
         $this->execute(fn () => $this->commandBus->dispatch(new UpdateMovieDetails($id, $details)));
     }
 

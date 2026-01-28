@@ -8,10 +8,15 @@ use App\Catalog\Domain\Values\MovieTitle;
 
 class MovieDetailsBuilder
 {
+    public static function create(): self
+    {
+        return new self();
+    }
+
     private MovieTitle $title;
     private MovieDescription $description;
 
-    public function __construct()
+    private function __construct()
     {
         $this->title = new MovieTitle('Default Title');
         $this->description = new MovieDescription('Default Description');
