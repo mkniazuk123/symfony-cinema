@@ -15,7 +15,3 @@ services:
     App\Tests\Facilities\Context\:
         resource: '../tests/Facilities/Context/*'
         public: true
-
-    App\Tests\Planning\Context\:
-        resource: '../tests/Planning/Context/*'
-        public: true
