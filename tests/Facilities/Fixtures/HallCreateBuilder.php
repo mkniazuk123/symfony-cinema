@@ -7,13 +7,18 @@ use App\Facilities\Domain\Values\HallId;
 use App\Facilities\Domain\Values\HallName;
 use App\Facilities\Domain\Values\SeatingLayout;
 
-class NewHallBuilder
+class HallCreateBuilder
 {
+    public static function create(): self
+    {
+        return new self();
+    }
+
     private HallId $id;
     private HallName $name;
     private SeatingLayout $layout;
 
-    public function __construct()
+    private function __construct()
     {
         $this->id = HallId::generate();
         $this->name = new HallName('Default Hall Name');

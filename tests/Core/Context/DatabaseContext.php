@@ -19,12 +19,11 @@ final class DatabaseContext implements Context
     #[BeforeScenario]
     public function startTransaction(): void
     {
+        // TODO: Deduplicate
         $this->database->executeStatement(<<<SQL
 TRUNCATE TABLE
     catalog_movie,
-    doctrine_migration_versions,
     facilities_hall,
-    facilities_reservation,
     planning_hall,
     planning_movie,
     planning_screening

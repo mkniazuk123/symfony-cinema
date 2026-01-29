@@ -47,11 +47,14 @@ abstract class IntegrationTestCase extends KernelTestCase
 
     private function resetDatabase(): void
     {
+        // TODO: Deduplicate
         $this->database->executeStatement(<<<SQL
 TRUNCATE TABLE
     catalog_movie,
     facilities_hall,
-    facilities_reservation
+    planning_hall,
+    planning_movie,
+    planning_screening
 RESTART IDENTITY CASCADE
 SQL);
     }

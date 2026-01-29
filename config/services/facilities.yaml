@@ -18,17 +18,10 @@ services:
         resource: '../../src/Facilities/Application/Query/Handler/*'
 
     App\Facilities\Application\Ports\HallReadModel: '@App\Facilities\Infrastructure\DbalHallReadModel'
-    App\Facilities\Application\Ports\ReservationReadModel: '@App\Facilities\Infrastructure\DbalReservationReadModel'
 
 
     ### Domain:
-    App\Facilities\Domain\Services\:
-        resource: '../../src/Facilities/Domain/Services/*'
-        public: true
-
     App\Facilities\Domain\Ports\HallRepository: '@App\Facilities\Infrastructure\DbalHallRepository'
-    App\Facilities\Domain\Ports\ReservationRepository: '@App\Facilities\Infrastructure\DbalReservationRepository'
-    App\Facilities\Domain\Ports\CalendarRepository: '@App\Facilities\Infrastructure\DbalCalendarRepository'
 
 
     ### Infrastructure

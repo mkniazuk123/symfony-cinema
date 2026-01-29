@@ -38,7 +38,7 @@ Feature: Movie catalog
         Given There is a movie "movie1" with status "upcoming"
         When I release the movie "movie1"
         Then The movie "movie1" should exists
-        And The movie should have status "available"
+        And The movie should have status "released"
         And Integration event "MovieReleased" should be published
 
     Scenario: Archive movie
@@ -80,7 +80,7 @@ Feature: Movie catalog
         And The movie should have length 100 minutes
 
     Scenario: Cannot release movie again
-        Given There is a movie "movie1" with status "available"
+        Given There is a movie "movie1" with status "released"
         When I release the movie "movie1"
         Then There should be an invalid movie status error
 

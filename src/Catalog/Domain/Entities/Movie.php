@@ -66,7 +66,7 @@ class Movie extends AggregateRoot
     public function release(): void
     {
         $this->assertStatus(MovieStatus::UPCOMING);
-        $this->status = MovieStatus::AVAILABLE;
+        $this->status = MovieStatus::RELEASED;
         $this->recordEvent(new MovieReleased($this->id));
     }
 
@@ -75,7 +75,7 @@ class Movie extends AggregateRoot
      */
     public function archive(): void
     {
-        $this->assertStatus(MovieStatus::UPCOMING, MovieStatus::AVAILABLE);
+        $this->assertStatus(MovieStatus::UPCOMING, MovieStatus::RELEASED);
         $this->status = MovieStatus::ARCHIVED;
         $this->recordEvent(new MovieArchived($this->id));
     }
@@ -85,7 +85,7 @@ class Movie extends AggregateRoot
      */
     public function updateDetails(MovieDetails $details): void
     {
-        $this->assertStatus(MovieStatus::UPCOMING, MovieStatus::AVAILABLE);
+        $this->assertStatus(MovieStatus::UPCOMING, MovieStatus::RELEASED);
 
         if (!$this->details->equals($details)) {
             $this->details = $details;
@@ -98,7 +98,7 @@ class Movie extends AggregateRoot
      */
     public function updateLength(MovieLength $length): void
     {
-        $this->assertStatus(MovieStatus::UPCOMING, MovieStatus::AVAILABLE);
+        $this->assertStatus(MovieStatus::UPCOMING, MovieStatus::RELEASED);
         if (!$this->length->equals($length)) {
             $this->length = $length;
             $this->recordEvent(new MovieLengthUpdated($this->id, $length));

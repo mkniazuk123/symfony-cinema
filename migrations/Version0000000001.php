@@ -37,16 +37,6 @@ CREATE TABLE facilities_hall (
 SQL);
 
         $this->addSql(<<<SQL
-CREATE TABLE facilities_reservation (
-    id CHARACTER VARYING NOT NULL PRIMARY KEY,
-    hall_id CHARACTER VARYING NOT NULL,
-    time_start TIMESTAMP(0) WITH TIME ZONE NOT NULL,
-    time_end TIMESTAMP(0) WITH TIME ZONE NOT NULL,
-    status CHARACTER VARYING NOT NULL
-);
-SQL);
-
-        $this->addSql(<<<SQL
 CREATE TABLE planning_hall (
     id CHARACTER VARYING NOT NULL PRIMARY KEY,
     open BOOLEAN NOT NULL

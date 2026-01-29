@@ -45,7 +45,7 @@ class MovieReconstituteBuilder
 
     public function released(): self
     {
-        return $this->withStatus(MovieStatus::AVAILABLE);
+        return $this->withStatus(MovieStatus::RELEASED);
     }
 
     public function archived(): self

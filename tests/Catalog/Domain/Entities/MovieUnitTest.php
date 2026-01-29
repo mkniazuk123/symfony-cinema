@@ -50,12 +50,12 @@ class MovieUnitTest extends TestCase
         $movie->release();
 
         // Assert:
-        $this->assertEquals(MovieStatus::AVAILABLE, $movie->getStatus());
+        $this->assertEquals(MovieStatus::RELEASED, $movie->getStatus());
         $domainEvents = DomainEventsHelper::forAggregateRoot($movie);
         $domainEvents->assertDomainEventIsDispatched(MovieReleased::class);
     }
 
-    #[TestWith([MovieStatus::AVAILABLE], 'available')]
+    #[TestWith([MovieStatus::RELEASED], 'available')]
     #[TestWith([MovieStatus::ARCHIVED], 'archived')]
     public function testCannotReleaseMovie(MovieStatus $status): void
     {
@@ -70,7 +70,7 @@ class MovieUnitTest extends TestCase
     }
 
     #[TestWith([MovieStatus::UPCOMING], 'upcoming')]
-    #[TestWith([MovieStatus::AVAILABLE], 'available')]
+    #[TestWith([MovieStatus::RELEASED], 'available')]
     public function testArchive(MovieStatus $status): void
     {
         // Arrange:
@@ -98,7 +98,7 @@ class MovieUnitTest extends TestCase
     }
 
     #[TestWith([MovieStatus::UPCOMING], 'upcoming')]
-    #[TestWith([MovieStatus::AVAILABLE], 'available')]
+    #[TestWith([MovieStatus::RELEASED], 'available')]
     public function testUpdateDetails(MovieStatus $status): void
     {
         // Arrange:

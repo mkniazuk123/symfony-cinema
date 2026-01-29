@@ -18,9 +18,9 @@ use App\Planning\Domain\Values\MovieId;
 use App\Planning\Domain\Values\ScreeningId;
 use App\Tests\Core\Fixtures\DateTimeBuilder;
 use App\Tests\IntegrationTestCase;
-use App\Tests\Planning\Fixtures\HallBuilder;
-use App\Tests\Planning\Fixtures\MovieBuilder;
-use App\Tests\Planning\Fixtures\ScreeningBuilder;
+use App\Tests\Planning\Fixtures\HallReconstituteBuilder;
+use App\Tests\Planning\Fixtures\MovieReconstituteBuilder;
+use App\Tests\Planning\Fixtures\ScreeningReconsituteBuilder;
 
 class ScheduleScreeningHandlerIntegrationTest extends IntegrationTestCase
 {
@@ -43,7 +43,7 @@ class ScheduleScreeningHandlerIntegrationTest extends IntegrationTestCase
         // Arrange:
         $id = ScreeningId::generate();
         $movieId = MovieId::generate();
-        $hall = HallBuilder::create()->build();
+        $hall = HallReconstituteBuilder::create()->build();
         $this->hallRepository->save($hall);
 
         // Assert:
@@ -59,9 +59,9 @@ class ScheduleScreeningHandlerIntegrationTest extends IntegrationTestCase
     {
         // Arrange:
         $id = ScreeningId::generate();
-        $movie = MovieBuilder::create()->build();
+        $movie = MovieReconstituteBuilder::create()->build();
         $this->movieRepository->save($movie);
-        $hallId = HallBuilder::create()->build()->getId();
+        $hallId = HallReconstituteBuilder::create()->build()->getId();
 
         // Assert:
         $this->expectException(HallNotFoundException::class);
@@ -76,9 +76,9 @@ class ScheduleScreeningHandlerIntegrationTest extends IntegrationTestCase
     {
         // Arrange:
         $id = ScreeningId::generate();
-        $movie = MovieBuilder::create()->build();
+        $movie = MovieReconstituteBuilder::create()->build();
         $this->movieRepository->save($movie);
-        $hall = HallBuilder::create()->closed()->build();
+        $hall = HallReconstituteBuilder::create()->closed()->build();
         $this->hallRepository->save($hall);
 
         // Assert:
@@ -94,9 +94,9 @@ class ScheduleScreeningHandlerIntegrationTest extends IntegrationTestCase
     {
         // Arrange:
         $id = ScreeningId::generate();
-        $movie = MovieBuilder::create()->unavailable()->build();
+        $movie = MovieReconstituteBuilder::create()->unavailable()->build();
         $this->movieRepository->save($movie);
-        $hall = HallBuilder::create()->build();
+        $hall = HallReconstituteBuilder::create()->build();
         $this->hallRepository->save($hall);
 
         // Assert:
@@ -112,9 +112,9 @@ class ScheduleScreeningHandlerIntegrationTest extends IntegrationTestCase
     {
         // Arrange:
         $id = ScreeningId::generate();
-        $movie = MovieBuilder::create()->build();
+        $movie = MovieReconstituteBuilder::create()->build();
         $this->movieRepository->save($movie);
-        $hall = HallBuilder::create()->build();
+        $hall = HallReconstituteBuilder::create()->build();
         $this->hallRepository->save($hall);
         $time = DateTimeBuilder::future()->inHours(23)->build();
 
@@ -132,14 +132,14 @@ class ScheduleScreeningHandlerIntegrationTest extends IntegrationTestCase
         // Arrange:
         $id = ScreeningId::generate();
 
-        $movie = MovieBuilder::create()->build();
+        $movie = MovieReconstituteBuilder::create()->build();
         $this->movieRepository->save($movie);
 
-        $hall = HallBuilder::create()->build();
+        $hall = HallReconstituteBuilder::create()->build();
         $this->hallRepository->save($hall);
 
         $this->screeningRepository->save(
-            ScreeningBuilder::create()
+            ScreeningReconsituteBuilder::create()
                 ->withHallId($hall->getId())
                 ->withMovieId($movie->getId())
                 ->withTime(
@@ -167,12 +167,12 @@ class ScheduleScreeningHandlerIntegrationTest extends IntegrationTestCase
         $id = ScreeningId::generate();
 
         $movieDuration = Duration::minutes(120);
-        $movie = MovieBuilder::create()
+        $movie = MovieReconstituteBuilder::create()
             ->withDuration($movieDuration)
             ->build();
         $this->movieRepository->save($movie);
 
-        $hall = HallBuilder::create()->build();
+        $hall = HallReconstituteBuilder::create()->build();
         $this->hallRepository->save($hall);
 
         $time = DateTimeBuilder::future()->inDays(2)->build();

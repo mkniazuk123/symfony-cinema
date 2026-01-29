@@ -6,7 +6,6 @@ use App\Facilities\Domain\Exceptions\InvalidHallStatusException;
 use App\Facilities\Domain\Values\HallName;
 use App\Facilities\Domain\Values\HallStatus;
 use App\Tests\Facilities\Fixtures\HallBuilder;
-use App\Tests\Facilities\Fixtures\NewHallBuilder;
 use App\Tests\Facilities\Fixtures\SeatingLayoutBuilder;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
@@ -18,7 +17,7 @@ class HallUnitTest extends TestCase
         // Arrange:
 
         // Act:
-        $hall = new NewHallBuilder()->build();
+        $hall = HallBuilder::create()->build();
 
         // Assert:
         $this->assertEquals(HallStatus::OPEN, $hall->getStatus());
@@ -32,7 +31,7 @@ class HallUnitTest extends TestCase
             ->build();
 
         // Act:
-        $hall = new NewHallBuilder()
+        $hall = HallBuilder::create()
             ->withLayout($layout)
             ->build();
 
@@ -45,7 +44,7 @@ class HallUnitTest extends TestCase
     public function testRenameHall(HallStatus $status): void
     {
         // Arrange:
-        $hall = new HallBuilder()
+        $hall = HallBuilder::reconstitute()
             ->withStatus($status)
             ->build();
 
@@ -62,7 +61,7 @@ class HallUnitTest extends TestCase
     public function testCannotRenameHall(HallStatus $status): void
     {
         // Arrange:
-        $hall = new HallBuilder()
+        $hall = HallBuilder::reconstitute()
             ->withStatus($status)
             ->build();
 
@@ -78,7 +77,7 @@ class HallUnitTest extends TestCase
     public function testUpdateLayout(HallStatus $status): void
     {
         // Arrange:
-        $hall = new HallBuilder()
+        $hall = HallBuilder::reconstitute()
             ->withStatus($status)
             ->build();
 
@@ -98,7 +97,7 @@ class HallUnitTest extends TestCase
     public function testCannotUpdateLayout(HallStatus $status): void
     {
         // Arrange:
-        $hall = new HallBuilder()
+        $hall = HallBuilder::reconstitute()
             ->withStatus($status)
             ->build();
 
@@ -117,7 +116,7 @@ class HallUnitTest extends TestCase
     public function testClose(HallStatus $status): void
     {
         // Arrange:
-        $hall = new HallBuilder()
+        $hall = HallBuilder::reconstitute()
             ->withStatus($status)
             ->build();
 
@@ -133,7 +132,7 @@ class HallUnitTest extends TestCase
     public function testCannotClose(HallStatus $status): void
     {
         // Arrange:
-        $hall = new HallBuilder()
+        $hall = HallBuilder::reconstitute()
             ->withStatus($status)
             ->build();
 
@@ -148,7 +147,7 @@ class HallUnitTest extends TestCase
     public function testOpen(HallStatus $status): void
     {
         // Arrange:
-        $hall = new HallBuilder()
+        $hall = HallBuilder::reconstitute()
             ->withStatus($status)
             ->build();
 
@@ -164,7 +163,7 @@ class HallUnitTest extends TestCase
     public function testCannotOpen(HallStatus $status): void
     {
         // Arrange:
-        $hall = new HallBuilder()
+        $hall = HallBuilder::reconstitute()
             ->withStatus($status)
             ->build();
 
@@ -180,7 +179,7 @@ class HallUnitTest extends TestCase
     public function testArchive(HallStatus $status): void
     {
         // Arrange:
-        $hall = new HallBuilder()
+        $hall = HallBuilder::reconstitute()
             ->withStatus($status)
             ->build();
 
@@ -195,7 +194,7 @@ class HallUnitTest extends TestCase
     public function testCannotArchive(HallStatus $status): void
     {
         // Arrange:
-        $hall = new HallBuilder()
+        $hall = HallBuilder::reconstitute()
             ->withStatus($status)
             ->build();
 

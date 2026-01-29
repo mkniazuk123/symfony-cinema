@@ -2,12 +2,17 @@
 
 namespace App\Planning\Domain\Entities;
 
+use App\Core\Domain\AggregateRoot;
 use App\Core\Domain\DateTimeRange;
+use App\Planning\Domain\Events\ScreeningCreated;
 use App\Planning\Domain\Values\HallId;
 use App\Planning\Domain\Values\MovieId;
 use App\Planning\Domain\Values\ScreeningId;
 
-class Screening
+/**
+ * @extends AggregateRoot<ScreeningId>
+ */
+class Screening extends AggregateRoot
 {
     public static function create(
         ScreeningId $id,
@@ -15,7 +20,7 @@ class Screening
         MovieId $movieId,
         DateTimeRange $time,
     ): self {
-        return new self($id, $hallId, $movieId, $time);
+        return new self($id, $hallId, $movieId, $time, created: true);
     }
 
     public static function reconstitute(
@@ -28,16 +33,17 @@ class Screening
     }
 
     private function __construct(
-        private ScreeningId $id,
+        ScreeningId $id,
         private HallId $hallId,
         private MovieId $movieId,
         private DateTimeRange $time,
+        bool $created = false,
     ) {
-    }
+        parent::__construct($id);
 
-    public function getId(): ScreeningId
-    {
-        return $this->id;
+        if ($created) {
+            $this->recordEvent(new ScreeningCreated($id, $hallId, $movieId, $time));
+        }
     }
 
     public function getHallId(): HallId

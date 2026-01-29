@@ -69,7 +69,7 @@ final class HallContext implements Context
         ?PyStringNode $layout = null,
         ?HallCapacity $capacity = null,
     ): void {
-        $hall = new HallBuilder($id);
+        $hall = HallBuilder::reconstitute()->withId($id);
         if (null !== $name) {
             $hall->withName($name);
         }

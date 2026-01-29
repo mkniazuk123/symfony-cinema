@@ -33,6 +33,7 @@ class RowLayoutUnitTest extends TestCase
         // Arrange:
         $segments = [
             new SeatGroupBuilder()->withSeats(1, 2)->build(),
+            new Gap(),
             new SeatGroupBuilder()->withSeats(2, 3)->build(),
         ];
 
